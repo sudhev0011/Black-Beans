@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1080" height="1080" viewBox="0 0 1080 1080" xml:space="preserve">
+<desc>Created with Fabric.js 5.2.4</desc>
+<defs>
+</defs>
+<rect x="0" y="0" width="100%" height="100%" fill="transparent"></rect>
+<g transform="matrix(1 0 0 1 540 540)" id="539f278e-7705-4ccd-b0bc-aa3d208c9e22"  >
+<rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1; visibility: hidden;" vector-effect="non-scaling-stroke"  x="-540" y="-540" rx="0" ry="0" width="1080" height="1080" />
+</g>
+<g transform="matrix(1 0 0 1 540 540)" id="e4bd4c41-a592-4099-827b-3d8521eceda4"  >
+</g>
+<g transform="matrix(26.34 0 0 26.34 540 540)"  >
+<path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(17,70,57); fill-rule: evenodd; opacity: 1;"  transform=" translate(-20.5, -20)" d="M 30.5 23.4117 C 33.3528 22.8667 35.5 20.4929 35.5 17.6471 L 35.5 14.1177 L 25.5 14.1177 L 25.5 11.7647 L 38 11.7647 L 38 2.35293 L 40.5 2.35293 L 40.5 0 L 33 0 L 33 2.35293 L 35.5 2.35293 L 35.5 9.41172 L 25.5 9.41172 L 25.5 4.70586 L 15.5 4.70586 L 15.5 14.1177 L 5.5 14.1177 L 5.5 17.6471 C 5.5 20.4929 7.6472 22.8667 10.5 23.4117 L 10.5 25.8823 L 0.5 25.8823 L 0.5 28.2353 L 3 28.2353 L 3 37.6471 L 0.5 37.6471 L 0.5 40 L 40.5 40 L 40.5 37.6471 L 38 37.6471 L 38 28.2353 L 40.5 28.2353 L 40.5 25.8823 L 30.5 25.8823 L 30.5 23.4117 Z M 11.75 21.1765 C 9.6789 21.1765 8 19.5963 8 17.6471 L 8 16.4706 L 33 16.4706 L 33 17.6471 C 33 19.5963 31.3211 21.1765 29.25 21.1765 L 11.75 21.1765 Z M 23 14.1177 L 18 14.1177 L 18 7.05879 L 23 7.05879 L 23 14.1177 Z M 13 25.8823 L 13 23.5294 L 28 23.5294 L 28 25.8823 L 13 25.8823 Z M 5.5 37.6471 L 5.5 28.2353 L 35.5 28.2353 L 35.5 37.6471 L 5.5 37.6471 Z" stroke-linecap="round" />
+</g>
+</svg>
