@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PriceFilter, CategoryFilter, SizeFilter, MobileFilters } from '@/components/ui/filter';
+import { Input } from "@/components/ui/input";
+import { PriceFilter, CategoryFilter, MobileFilters } from '@/components/ui/filter';
 import { cn } from '@/lib/utils';
 import ProductCard from './ProductCard';
 import { FiGrid } from 'react-icons/fi';
@@ -26,6 +27,7 @@ export default function ShopPage() {
   const [sort, setSort] = useState('AtoZ');
   const [currentPage, setCurrentPage] = useState(1);
   const [priceRange, setPriceRange] = useState([0, 82000]);
+  const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
 
@@ -35,17 +37,18 @@ export default function ShopPage() {
     page: currentPage,
     limit: 8, // Match frontend pagination
     sort,
+    search:searchTerm || '',
     minPrice: priceRange[0] === 0 ? undefined : priceRange[0],
     maxPrice: priceRange[1] === 8200 ? undefined : priceRange[1],
     category: selectedCategories.length === 1 ? selectedCategories[0] : undefined, // Single category for now
-    // Note: Multiple categories and sizes need backend support (see below)
   });
+  console.log('all products for listing',data);
+  
 
   const products = data?.products || [];
   const pagination = data?.pagination || { currentPage: 1, totalPages: 1, totalProducts: 0, limit: 8 };
   const start = (pagination.currentPage - 1) * pagination.limit + 1;
   const end = Math.min(pagination.currentPage * pagination.limit, pagination.totalProducts);
-
   if (isError) return <div className="text-center mt-10 text-red-600">Error: {error?.data?.message || error.message}</div>;
 
   return (
@@ -64,14 +67,6 @@ export default function ShopPage() {
                 }
                 categories={categoriesData?.categories}
               />
-              {/* <SizeFilter
-                selectedSizes={selectedSizes}
-                onSizeChange={(sizeId) =>
-                  setSelectedSizes((prev) =>
-                    prev.includes(sizeId) ? prev.filter((id) => id !== sizeId) : [...prev, sizeId]
-                  )
-                }
-              /> */}
             </div>
 
             <div>
@@ -110,6 +105,18 @@ export default function ShopPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                  <Input
+                              type="text"
+                              placeholder="Search products..."
+                              value={searchTerm}
+                              onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1); 
+                              }}
+                              className="w-full sm:w-64"
+                            />
+                  </div>
                 </div>
                 {isLoading ? (
                   <Skeleton className="h-4 w-48" />

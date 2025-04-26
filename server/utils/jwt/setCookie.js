@@ -6,7 +6,7 @@ function setCookie(tokenName, token, maxAge, res) {
     sameSite: 'lax', // Changed from 'strict' to 'lax' for better cross-origin compatibility
     maxAge: maxAge,
     path: '/', // Ensure cookie is available for all paths
-    domain: 'localhost'
+    // domain: 'localhost'
   });
 }
 

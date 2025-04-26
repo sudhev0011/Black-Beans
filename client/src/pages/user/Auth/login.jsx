@@ -14,7 +14,7 @@ import { setUserCredentials } from '@/store/slices/userSlice/userSlice';
 
 const initialState = { email: '', password: '' };
 const admin = { email: 'sudhevsuresh@gmail.com', password: 'Sudhev123' };
-const user = { email: 'asd@gmail.com', password: 'password123' };
+const user = { email: 'aswinskumar26@gmail.com', password: 'aswinskumar26@gmail.com' };
 
 function AuthLogin() {
   const [formData, setFormData] = useState(initialState);
@@ -149,14 +149,14 @@ function AuthLogin() {
           >
             <FaUserAstronaut style={{ width: '15px', height: '15px' }} /> Demo User
           </Button>
-          <Button
+          {/* <Button
             variant="outline"
             className="w-1/2"
             onClick={() => handleAdminDemoLogin(admin)}
             disabled={isLoading}
           >
             <MdAdminPanelSettings style={{ width: '20px', height: '20px' }} /> Demo Admin
-          </Button>
+          </Button> */}
         </div>
       </div>
     </GoogleOAuthProvider>

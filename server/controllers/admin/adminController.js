@@ -10,15 +10,15 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const registerAdmin = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { username, email, password } = req.body;
   try {
     const existingAdmin = await Admin.findOne({ email });
     if (existingAdmin) {
       return res.status(400).json({ success: false, message: 'Admin already exists' });
     }
     const hashedPassword = await hashPassword(password);
-    const admin = await Admin.create({ name, email, password: hashedPassword, role: 'admin' });
-    const adminData = { id: admin._id, name: admin.name, email: admin.email, role: admin.role };
+    const admin = await Admin.create({ username, email, password: hashedPassword, role: 'admin' });
+    const adminData = { id: admin._id, username: admin.username, email: admin.email, role: admin.role };
 
     res.status(201).json({
       success: true,
@@ -59,8 +59,8 @@ const login = async (req, res) => {
     });
 
     // Set cookies with proper expiration
+    setCookie('adminAccessToken', accessToken, 30 * 60 * 1000, res); // 30 minutes
     setCookie('adminRefreshToken', refreshToken, 15 * 24 * 60 * 60 * 1000, res); // 15 days
-    setCookie('adminAccessToken', accessToken, 30 * 60 * 1000, res); // 2 minutes
     console.log('Admin login successful, tokens set:', {
       accessTokenExpiry: '30 minutes',
       refreshTokenExpiry: refreshTokenExpiry.toISOString()
@@ -69,7 +69,7 @@ const login = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Admin logged in successfully',
-      admin: { id: admin._id, name: admin.name, email: admin.email, role: admin.role },
+      admin: { id: admin._id, username: admin.username, email: admin.email, role: admin.role },
     });
   } catch (error) {
     console.error('Admin login error:', error);
@@ -78,7 +78,7 @@ const login = async (req, res) => {
 };
 
 const adminRefreshToken = async (req, res) => {
-  console.log('Refresh token request received');
+  console.log('Refresh token request received at admin');
   const refreshToken = req.cookies?.adminRefreshToken;
   
   if (!refreshToken) {
@@ -102,7 +102,7 @@ const adminRefreshToken = async (req, res) => {
 
     // Verify JWT and extract admin data
     console.log('Verifying refresh token JWT...');
-    const decoded = jwt.verify(refreshToken, process.env.ADMIN_REFRESH_TOKEN_KEY);
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY);
     const admin = await Admin.findById(decoded.id);
     
     if (!admin) {
@@ -117,7 +117,7 @@ const adminRefreshToken = async (req, res) => {
     const newAccessToken = generateAccessToken(adminData, 'Admin');
     
     // Set new access token cookie with proper expiration
-    setCookie('adminAccessToken', newAccessToken, 30 * 60 * 1000, res); // 2 minutes
+    setCookie('adminAccessToken', newAccessToken, 30 * 60 * 1000, res); // 30 minutes
     console.log('New access token generated and set in cookie');
     res.status(200).json({ 
       success: true, 
@@ -126,7 +126,7 @@ const adminRefreshToken = async (req, res) => {
     });
   } catch (error) {
     console.error('Refresh token error:', error);
-    if (error.name === 'JsonWebTokenError') {
+    if (error.username === 'JsonWebTokenError') {
       return res.status(403).json({ success: false, message: 'Invalid refresh token' });
     }
     if (error.name === 'TokenExpiredError') {

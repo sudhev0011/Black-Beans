@@ -5,7 +5,6 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/connectDB');
 const userRoute = require('./routes/userRoutes');
 const adminRoute = require('./routes/adminRoute');
-
 dotenv.config();
 
 const app = express();

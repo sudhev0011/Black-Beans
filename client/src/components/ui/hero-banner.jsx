@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { background } from "@/assets/Banners";
+import { useNavigate } from "react-router-dom";
 
 const banners = [
   {
@@ -29,7 +30,7 @@ const banners = [
 
 export default function HeroBanner() {      
   const [currentBanner, setCurrentBanner] = useState(0);
-
+  const navigate = useNavigate()
   useEffect(() => {
     if (banners.length > 1) {
       const interval = setInterval(() => {
@@ -66,7 +67,7 @@ export default function HeroBanner() {
           <motion.div
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
             className={`hero flex flex-col justify-center text-${banner.textPosition} p-12 w-full`}
           >
             <h1 className="text-4xl font-bold tracking-tight text-[#114639] sm:text-5xl md:text-6xl whitespace-pre-line">
@@ -87,18 +88,14 @@ export default function HeroBanner() {
               <Button
                 size="lg"
                 className="hidden md:block border-1 border-[#C0C9C5] bg-transparent text-black hover:bg-white/90 hover:text-black rounded-full h-12"
-                onClick={() => {
-                  navigator.push("/shop");
-                }}
+                onClick={() => navigate("/shop")}
               >
                 SHOP NOW
               </Button>
               <Button
                 size="lg"
                 className="bg-[#114639] hover:bg-transparent hover:text-black text-white rounded-full h-12"
-                onClick={() => {
-                  navigator.push("/shop");
-                }}
+                onClick={() => navigate("/shop")}
               >
                 VIEW MORE
               </Button>

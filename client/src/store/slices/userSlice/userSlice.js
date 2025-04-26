@@ -3,19 +3,22 @@ import { createSlice } from '@reduxjs/toolkit';
 const userSlice = createSlice({
   name: 'user',
   initialState: {
-    user: JSON.parse(localStorage.getItem('userData')) || null, // parse stored data
-    isAuthenticated: localStorage.getItem('userData') ? true : false, // checks if 'userData' exists
+    user: null, 
+    isAuthenticated: false,
+    hasLoggedOut: false,
+    isFirstUser: null, 
   },
   reducers: {
     setUserCredentials: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
-      localStorage.setItem('userData', JSON.stringify(action.payload)); // store as string
+      state.hasLoggedOut = false;
+      state.isFirstUser = action.payload.isFirstUser
     },
     logoutUser: (state) => {
-      state.user = null;  
+      state.user = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('userData');
+      state.hasLoggedOut = true;
     },
   },
 });

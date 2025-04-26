@@ -1,5 +1,5 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, Outlet, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import {
   SidebarProvider,
   Sidebar,
@@ -13,9 +13,9 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarGroupContent,
-} from '@/components/ui/sidebar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,33 +23,57 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from '@/components/ui/breadcrumb';
-import { BarChart3, ShieldUser, ShoppingCart, Tag, Users, FileText, Ticket, Search, Bell, Package } from 'lucide-react';
-import { useAdminLogoutMutation } from '@/store/api/adminApiSlice';
-import { logoutAdmin } from '@/store/slices/adminSlice/adminSlice';
-import { toast } from 'sonner';
+} from "@/components/ui/dropdown-menu";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+} from "@/components/ui/breadcrumb";
+import {
+  BarChart3,
+  ShieldUser,
+  ShoppingCart,
+  Tag,
+  Users,
+  FileText,
+  Ticket,
+  Search,
+  Bell,
+  Package,
+  Wallet
+} from "lucide-react";
+import {
+  useAdminLogoutMutation,
+  adminApiSlice,
+} from "@/store/api/adminApiSlice";
+import { logoutAdmin } from "@/store/slices/adminSlice/adminSlice";
+import { toast } from "sonner";
 
 export default function AdminPanel() {
   const admin = useSelector((state) => state.admin.admin);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation(); // Get current route
+  const location = useLocation();
   const [logout, { isLoading }] = useAdminLogoutMutation();
-
   const handleLogout = async () => {
     try {
       const response = await logout().unwrap();
       if (response.success) {
         dispatch(logoutAdmin());
-        toast.success('Admin logged out successfully');
-        navigate('/auth/admin-login');
+        dispatch(adminApiSlice.util.resetApiState());
+        toast.success("Admin logged out successfully");
+        navigate("/auth/admin-login");
       } else {
-        toast.error(response.message || 'Logout failed');
+        toast.error(response.message || "Logout failed");
       }
     } catch (error) {
-      toast.error(error?.data?.message || 'Logout failed');
-      console.error('Admin Logout Error:', error);
+      toast.error(error?.data?.message || "Logout failed");
+      console.error("Admin Logout Error:", error);
+      dispatch(logoutAdmin());
+      dispatch(adminApiSlice.util.resetApiState());
+      toast.success("Admin logged out successfully");
+      navigate("/auth/admin-login");
     }
   };
 
@@ -58,49 +82,49 @@ export default function AdminPanel() {
   };
 
   const getBreadcrumbItems = () => {
-    const path = location.pathname.split('/admin/')[1] || 'dashboard';
+    const path = location.pathname.split("/admin/")[1] || "dashboard";
     switch (path) {
-      case 'dashboard':
-      case '':
-        return [{ label: 'Dashboard', href: '/admin/dashboard' }];
-      case 'products':
+      case "dashboard":
+      case "":
+        return [{ label: "Dashboard", href: "/admin/dashboard" }];
+      case "products":
         return [
-          { label: 'Dashboard', href: '/admin/dashboard' },
-          { label: 'Product Management', href: '/admin/products' },
+          { label: "Dashboard", href: "/admin/dashboard" },
+          { label: "Product Management", href: "/admin/products" },
         ];
-      case 'categories':
+      case "categories":
         return [
-          { label: 'Dashboard', href: '/admin/dashboard' },
-          { label: 'Category Management', href: '/admin/categories' },
+          { label: "Dashboard", href: "/admin/dashboard" },
+          { label: "Category Management", href: "/admin/categories" },
         ];
-      case 'users':
+      case "users":
         return [
-          { label: 'Dashboard', href: '/admin/dashboard' },
-          { label: 'User Management', href: '/admin/users' },
+          { label: "Dashboard", href: "/admin/dashboard" },
+          { label: "User Management", href: "/admin/users" },
         ];
-      case 'orders':
+      case "orders":
         return [
-          { label: 'Dashboard', href: '/admin/dashboard' },
-          { label: 'Order Management', href: '/admin/orders' },
+          { label: "Dashboard", href: "/admin/dashboard" },
+          { label: "Order Management", href: "/admin/orders" },
         ];
-      case 'reports':
+      case "reports":
         return [
-          { label: 'Dashboard', href: '/admin/dashboard' },
-          { label: 'Sales Reports', href: '/admin/reports' },
+          { label: "Dashboard", href: "/admin/dashboard" },
+          { label: "Sales Reports", href: "/admin/reports" },
         ];
-      case 'coupons':
+      case "coupons":
         return [
-          { label: 'Dashboard', href: '/admin/dashboard' },
-          { label: 'Coupon Management', href: '/admin/coupons' },
+          { label: "Dashboard", href: "/admin/dashboard" },
+          { label: "Coupon Management", href: "/admin/coupons" },
         ];
       default:
-        return [{ label: 'Dashboard', href: '/admin/dashboard' }];
+        return [{ label: "Dashboard", href: "/admin/dashboard" }];
     }
   };
 
   return (
     <SidebarProvider>
-      <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
+      <div className="grid min-h-screen w-full lg:grid-cols-[248px_1fr]">
         <Sidebar>
           <SidebarHeader className="border-b border-border p-4">
             <div className="flex items-center gap-2">
@@ -115,8 +139,11 @@ export default function AdminPanel() {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => handleNavigation('/admin/dashboard')}
-                      isActive={location.pathname === '/admin' || location.pathname === '/admin/dashboard'}
+                      onClick={() => handleNavigation("/admin/dashboard")}
+                      isActive={
+                        location.pathname === "/admin" ||
+                        location.pathname === "/admin/dashboard"
+                      }
                     >
                       <BarChart3 className="h-4 w-4" />
                       <span>Dashboard</span>
@@ -132,8 +159,8 @@ export default function AdminPanel() {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => handleNavigation('/admin/products')}
-                      isActive={location.pathname === '/admin/products'}
+                      onClick={() => handleNavigation("/admin/products")}
+                      isActive={location.pathname === "/admin/products"}
                     >
                       <Package className="h-4 w-4" />
                       <span>Product Management</span>
@@ -141,8 +168,8 @@ export default function AdminPanel() {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => handleNavigation('/admin/categories')}
-                      isActive={location.pathname === '/admin/categories'}
+                      onClick={() => handleNavigation("/admin/categories")}
+                      isActive={location.pathname === "/admin/categories"}
                     >
                       <Tag className="h-4 w-4" />
                       <span>Category Management</span>
@@ -158,8 +185,8 @@ export default function AdminPanel() {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => handleNavigation('/admin/orders')}
-                      isActive={location.pathname === '/admin/orders'}
+                      onClick={() => handleNavigation("/admin/orders")}
+                      isActive={location.pathname === "/admin/orders"}
                     >
                       <ShoppingCart className="h-4 w-4" />
                       <span>Order Management</span>
@@ -167,8 +194,8 @@ export default function AdminPanel() {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => handleNavigation('/admin/coupons')}
-                      isActive={location.pathname === '/admin/coupons'}
+                      onClick={() => handleNavigation("/admin/coupons")}
+                      isActive={location.pathname === "/admin/coupons"}
                     >
                       <Ticket className="h-4 w-4" />
                       <span>Coupon Management</span>
@@ -184,11 +211,29 @@ export default function AdminPanel() {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => handleNavigation('/admin/users')}
-                      isActive={location.pathname === '/admin/users'}
+                      onClick={() => handleNavigation("/admin/users")}
+                      isActive={location.pathname === "/admin/users"}
                     >
                       <Users className="h-4 w-4" />
                       <span>User Management</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+
+            <SidebarGroup>
+              <SidebarGroupLabel>Wallet</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => handleNavigation("/admin/wallet")}
+                      isActive={location.pathname === "/admin/eallet"}
+                    >
+                      <Wallet className="h-4 w-4" />
+                      <span>Wallet</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
@@ -201,8 +246,8 @@ export default function AdminPanel() {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => handleNavigation('/admin/reports')}
-                      isActive={location.pathname === '/admin/reports'}
+                      onClick={() => handleNavigation("/admin/reports")}
+                      isActive={location.pathname === "/admin/reports"}
                     >
                       <FileText className="h-4 w-4" />
                       <span>Sales Reports</span>
@@ -214,14 +259,22 @@ export default function AdminPanel() {
           </SidebarContent>
           <SidebarFooter className="border-b border-border p-4">
             <div className="flex items-center gap-2">
-              <img
-                src={admin?.image_url || '/placeholder.svg?height=32&width=32'}
-                alt="Admin"
-                className="h-8 w-8 rounded-full"
-              />
+              {admin?.image_url ? (
+                <img
+                  src={admin.image_url}
+                  alt={admin.username}
+                  className="h-8 w-8 rounded-full"
+                />
+              ) : (
+                admin?.username?.substring(0, 2).toUpperCase()
+              )}
               <div>
-                <p className="text-sm font-medium">{admin?.email || 'Admin User'}</p>
-                <p className="text-xs text-muted-foreground">admin@blackbeans.com</p>
+                <p className="text-sm font-medium">
+                  {admin?.email || "Admin User"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  admin@blackbeans.com
+                </p>
               </div>
             </div>
           </SidebarFooter>
@@ -237,19 +290,15 @@ export default function AdminPanel() {
                   </BreadcrumbItem>
                   {getBreadcrumbItems().map((item, index) => (
                     <BreadcrumbItem key={index}>
-                      <BreadcrumbLink href={item.href}>/ {item.label}</BreadcrumbLink>
+                      <BreadcrumbLink href={item.href}>
+                        / {item.label}
+                      </BreadcrumbLink>
                     </BreadcrumbItem>
                   ))}
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
             <div className="flex items-center gap-4">
-              <form className="hidden md:block">
-                {/* <div className="relative">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input type="search" placeholder="Search..." className="w-64 pl-8 md:w-80" />
-                </div> */}
-              </form>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
                 <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary"></span>
@@ -257,21 +306,29 @@ export default function AdminPanel() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
-                    <img
-                      src={admin?.image_url || '/placeholder.svg?height=32&width=32'}
-                      alt="Admin"
-                      className="h-8 w-8 rounded-full"
-                    />
+                    {admin?.image_url ? (
+                      <img
+                        src={admin.image_url}
+                        alt={admin.username}
+                        className="h-8 w-8 rounded-full"
+                      />
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold">
+                        {admin?.username?.substring(0, 2).toUpperCase()}
+                      </div>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/admin/profile')}>Profile</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("#")}>
+                    Profile
+                  </DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
-                    {isLoading ? 'Logging out...' : 'Logout'}
+                    {isLoading ? "Logging out..." : "Logout"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

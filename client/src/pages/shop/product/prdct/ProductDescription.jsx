@@ -1,5 +1,3 @@
-
-
 import { useState } from "react"
 
 const ProductDescription = ({ product }) => {
@@ -30,15 +28,6 @@ const ProductDescription = ({ product }) => {
         {activeTab === "description" && (
           <div>
             <p className="text-gray-700 leading-relaxed">{product.description}</p>
-            {/* <p className="text-gray-700 leading-relaxed mt-4">
-              Our El Salvador coffee beans are sourced from high-altitude farms in the mountainous regions of El
-              Salvador. These beans are carefully selected and roasted to perfection to bring out their unique flavor
-              profile.
-            </p>
-            <p className="text-gray-700 leading-relaxed mt-4">
-              The beans are finely ground to ensure optimal extraction, resulting in a rich and aromatic cup of coffee
-              with notes of chocolate, caramel, and a subtle citrus finish.
-            </p> */}
           </div>
         )}
 

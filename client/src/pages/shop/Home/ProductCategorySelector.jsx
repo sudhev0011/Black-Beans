@@ -1,4 +1,4 @@
-import { BeansIcon, EquipmentsIcon } from '@/assets/category';
+  import { BeansIcon, EquipmentsIcon } from '@/assets/category';
 
 const Category = ({ icon, label, isActive, onClick }) => (
   <div

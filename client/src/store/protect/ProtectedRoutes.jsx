@@ -1,52 +1,109 @@
-import { Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useCheckAuthQuery } from "../api/userApiSlice";
+import OrganicLoading from "@/components/ui/loading/OrganicLoading";
 
-// Protects routes that only authenticated users can access
+// export const ProtectedUserRoute = ({ children }) => {
+//   const user = useSelector((state) => state.user.user);
+//   const admin = useSelector((state) => state.admin.admin);
+//   console.log('user at ProtectedUserRoute',user);
+//   const { isLoading } = useCheckAuthQuery(); // Add this
+
+//   if (isLoading) {
+//     console.log("if isLoading",isLoading);
+    
+//     return <OrganicLoading />; // Or some loading indicator
+//   }
+  
+
+//   if (user?.role === "user") {
+//     return children;
+//   } else if (admin?.role === "admin") {
+//     return <Navigate to="/admin/dashboard" />;
+//   } else {
+//     return <Navigate to="/auth/login" />;
+//   }
+// };
+
+// export const ProtectedAdminRoute = ({ children }) => {
+//   const admin = useSelector((state) => state.admin.admin);
+//   const user = useSelector((state) => state.user.user);
+
+//   if (admin?.role === "admin") {
+//     return children;
+//   } else if (user?.role === "user") {
+//     return <Navigate to="/user" />;
+//   } else {
+//     return <Navigate to="/auth/admin-login" />;
+//   }
+// };
+
 export const ProtectedUserRoute = ({ children }) => {
   const user = useSelector((state) => state.user.user);
   const admin = useSelector((state) => state.admin.admin);
+  const { isLoading, isError, error } = useCheckAuthQuery();
 
-  if (user?.role === 'user') {
-    return children; // Allow access if user is authenticated
-  } else if (admin?.role === 'admin') {
-    return <Navigate to="/admin/dashboard" />; // Redirect admins to admin dashboard
+  console.log("ProtectedUserRoute - user:", user, "admin:", admin, "isLoading:", isLoading, "isError:", isError, "error:", error);
+
+  if (isLoading) {
+    return <OrganicLoading />;
+  }
+
+  if (isError) {
+    console.log("ProtectedUserRoute - auth error:", error);
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  if (user?.role === "user") {
+    return children;
+  } else if (admin?.role === "admin") {
+    return <Navigate to="/admin/dashboard" replace />;
   } else {
-    return <Navigate to="/auth/login" />; // Redirect unauthenticated to login
+    return <Navigate to="/auth/login" replace />;
   }
 };
 
-// Protects routes that only authenticated admins can access
 export const ProtectedAdminRoute = ({ children }) => {
   const admin = useSelector((state) => state.admin.admin);
   const user = useSelector((state) => state.user.user);
+  const { isLoading } = useCheckAuthQuery(); 
 
-  if (admin?.role === 'admin') {
-    return children; // Allow access if admin is authenticated
-  } else if (user?.role === 'user') {
-    return <Navigate to="/" />; // Redirect users to home
+  if (isLoading) {
+    console.log("if isLoading",isLoading);
+    
+    return <OrganicLoading />; // Or some loading indicator
+  }
+
+  if (admin?.role === "admin") {
+    return children;
+  } else if (user?.role === "user") {
+    return <Navigate to="/user" />;
   } else {
-    return <Navigate to="/auth/admin-login" />; // Redirect unauthenticated to admin login
+    return <Navigate to="/auth/admin-login" />;
   }
 };
 
-// Protects auth routes, redirecting authenticated users/admins away
+
+
+
+
 export const AuthRoute = ({ children, isAdminRoute = false }) => {
   const user = useSelector((state) => state.user.user);
   const admin = useSelector((state) => state.admin.admin);
 
   if (isAdminRoute) {
-    if (admin?.role === 'admin') {
-      return <Navigate to="/admin/dashboard" />; // Redirect logged-in admin
-    } else if (user?.role === 'user') {
-      return <Navigate to="/" />; // Redirect logged-in user
+    if (admin?.role === "admin") {
+      return <Navigate to="/admin/dashboard" />;
+    } else if (user?.role === "user") {
+      return <Navigate to="/user" />;
     }
   } else {
-    if (user?.role === 'user') {
-      return <Navigate to="/" />; // Redirect logged-in user
-    } else if (admin?.role === 'admin') {
-      return <Navigate to="/admin/dashboard" />; // Redirect logged-in admin
+    if (user?.role === "user") {
+      return <Navigate to="/" />;
+    } else if (admin?.role === "admin") {
+      return <Navigate to="/admin/dashboard" />;
     }
   }
 
-  return children; // Allow access if not authenticated
+  return children;
 };

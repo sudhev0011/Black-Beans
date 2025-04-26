@@ -5,7 +5,6 @@ import DotLoading from "@/components/ui/DotLoading";
 import { registerFormControls } from "@/config";
 import { toast } from "sonner";
 import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import { useSignupMutation ,useGoogleLoginMutation} from "@/store/api/userApiSlice";
 import { setUserCredentials } from '@/store/slices/userSlice/userSlice';

@@ -10,12 +10,6 @@ import {
     SheetTrigger,
   } from "@/components/ui/sheet"
 
-const Sizes = [
-  { id: 'S', name: 'S' },
-  { id: 'M', name: 'M' },
-  { id: 'L', name: 'L' },
-];
-
 export function PriceFilter({ value, onValueChange }) {
   return (
     <div className="space-y-4">
@@ -76,27 +70,6 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }) {
   );
 }
 
-export function SizeFilter({ selectedSizes, onSizeChange }) {
-  return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">FILTER BY SIZE</h3>
-      <div className="space-y-3">
-        {Sizes.map((size) => (
-          <button
-            key={size.id}
-            className="flex w-full items-center justify-between group active:bg-gray-500"
-            onClick={() => onSizeChange(size.id)}
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-gray-600 group-hover:text-gray-900 active:font-bold">{size.name}</span>
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function MobileFilters({ priceRange, setPriceRange, selectedCategories, setSelectedCategories, selectedSizes, setSelectedSizes }) {
   return (
     <Sheet>
@@ -113,7 +86,6 @@ export function MobileFilters({ priceRange, setPriceRange, selectedCategories, s
         <div className="mt-8 space-y-8">
           <PriceFilter value={priceRange} onValueChange={setPriceRange} />
           <CategoryFilter selectedCategories={selectedCategories} onCategoryChange={setSelectedCategories} />
-          <SizeFilter selectedSizes={selectedSizes} onSizeChange={setSelectedSizes} />
         </div>
       </SheetContent>
     </Sheet>

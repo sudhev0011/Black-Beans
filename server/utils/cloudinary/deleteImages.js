@@ -1,31 +1,49 @@
 const cloudinary = require("../../config/cloudinaryConfig");
 
 const cloudinaryDeleteImages = async (imageUrls) => {
-  
-    const getPublicIdFromUrl = (url) => {
+  // Ensure imageUrls is an array
+  if (!Array.isArray(imageUrls)) {
+    throw new Error('imageUrls must be an array');
+  }
+
+  const getPublicIdFromUrl = (url) => {
+    try {
       const parts = url.split('/');
-      const fileWithExtension = parts.pop(); // Get the file name with extension
-      const folderPath = parts.slice(-1)[0] === 'products' ? '' : 'products/'; // Folder name
-      const [publicId] = fileWithExtension.split('.'); // Get the public_id without extension
-      return `${folderPath}${publicId}`;
-    };
-  
-    const deletePromises = imageUrls.map((url) => {
-      const publicId = getPublicIdFromUrl(url);
-      return new Promise((resolve, reject) => {
-        cloudinary.uploader.destroy(publicId, (error, result) => {
-          if (error) {
-            console.error(`Failed to delete image with public_id ${publicId}:`, error);
-            reject(error);
-          } else {
-            console.log(`Deleted image with public_id ${publicId}:`, result);
-            resolve(result);
-          }
-        });
-      });
-    });
-  
-    return Promise.all(deletePromises);
+      const fileWithExtension = parts.pop();
+      const folder = parts[parts.length - 1];
+      const [publicId] = fileWithExtension.split('.');
+      return folder === 'products' ? `products/${publicId}` : publicId;
+    } catch (error) {
+      console.error('Error extracting public ID:', error);
+      throw error;
+    }
   };
-  
-module.exports =cloudinaryDeleteImages
+
+  const deletePromises = imageUrls.map(async (url) => {
+    try {
+      const publicId = getPublicIdFromUrl(url);
+      console.log('Attempting to delete image with publicId:', publicId); // Debug log
+      
+      const result = await cloudinary.uploader.destroy(publicId, {
+        invalidate: true, // Ensures CDN cache is invalidated
+        resource_type: 'image'
+      });
+      
+      console.log(`Delete result for ${publicId}:`, result);
+      return result;
+    } catch (error) {
+      console.error(`Error deleting image ${url}:`, error);
+      throw error;
+    }
+  });
+
+  try {
+    const results = await Promise.all(deletePromises);
+    return results;
+  } catch (error) {
+    console.error('Deletion failed:', error);
+    throw error;
+  }
+};
+
+module.exports = cloudinaryDeleteImages;

@@ -43,7 +43,7 @@ export function VeryOtp() {
       if (response.success) {
         toast.success(response.message);
         localStorage.removeItem('verifyEmail');
-        navigate('/auth/login');
+        navigate('/');
       }
     } catch (error) {
       toast.error(error?.data?.message || 'OTP verification failed');

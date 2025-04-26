@@ -41,7 +41,58 @@ const addCategory = async (req, res) => {
   }
 };
 
-// Get all categories with search and pagination
+// const getAllCategories = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 10;
+//     const search = req.query.search || '';
+
+//     const query = {
+//       name: { $regex: search, $options: 'i' }
+//     };
+
+//     const categories = await Category.find(query)
+//       .sort({ updatedAt: -1 })
+//       .skip((page - 1) * limit)
+//       .limit(limit)
+
+//       console.log("category data form the database",categories);
+//       // const productsCount = await Category.aggregate([
+//       //   {
+//       //     $lookup: {
+//       //       from: 'products',
+//       //       localField: '_id',
+//       //       foreignField: 'category',
+//       //       as: 'products'
+//       //     }
+//       //   },
+
+//       //   {
+//       //     $project:{
+//       //       name: 1,
+//       //       productCount: {$size: '$products'}
+//       //     }
+//       //   }
+//       // ])
+      
+//       // console.log(productsCount);
+      
+//     const totalCategories = await Category.countDocuments(query);
+
+//     res.status(200).json({
+//       categories,
+//       totalCategories,
+//       currentPage: page,
+//       totalPages: Math.ceil(totalCategories / limit),
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to fetch categories' });
+//   }
+// };
+
+// List or Unlist
+
+
 const getAllCategories = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -52,25 +103,52 @@ const getAllCategories = async (req, res) => {
       name: { $regex: search, $options: 'i' }
     };
 
-    const categories = await Category.find(query)
-      .sort({ updatedAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
-
+    // Get product counts for each category in one query using aggregation
+    const categoriesWithCounts = await Category.aggregate([
+      { $match: query }, 
+      { $sort: { updatedAt: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'products', 
+          localField: '_id',
+          foreignField: 'category',
+          as: 'products'
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          hasVarient: 1,
+          isListed: 1,
+          offer: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          description: 1,
+          productCount: { $size: '$products' }
+        }
+      }
+    ]);
+    console.log(categoriesWithCounts);
+    
     const totalCategories = await Category.countDocuments(query);
 
     res.status(200).json({
-      categories,
+      categories: categoriesWithCounts, 
       totalCategories,
       currentPage: page,
       totalPages: Math.ceil(totalCategories / limit),
     });
   } catch (error) {
+    console.error('Error fetching categories:', error);
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 };
 
-// List or Unlist
+
+
+
 const listCategory = async (req, res) => {
   const { id: categoryId } = req.params;
   try {
@@ -92,7 +170,7 @@ const updateCategory = async (req, res) => {
   try {
     await categorySchema.validate(req.body, { abortEarly: false });
     
-    const { name, description, isListed = true } = req.body; // Default isListed if not sent
+    const { name, description, isListed = true } = req.body; 
     const { id: categoryId } = req.params;
 
     const categoryExists = await Category.findOne({
@@ -116,7 +194,7 @@ const updateCategory = async (req, res) => {
       return res.status(404).json({ success: false, message: "Category not found" });
     }
 
-    console.log("Backend update response:", updatedCategory); // Debug log
+    console.log("Backend update response after update :", updatedCategory); 
     res.status(200).json({
       success: true,
       message: "Category updated successfully",

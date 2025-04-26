@@ -1,48 +1,53 @@
-import { useRef, useState, useEffect } from 'react'
-import { cn } from "@/lib/utils"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight} from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
-import { getSingleProduct } from '@/store/shop-slice'
+import { useRef, useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useGetProductsQuery } from '@/store/api/userApiSlice';
+import LoadingSkeleton from '@/components/ui/loading/LoadingSkeleton';
+import ProductCard from '../../Listing/ProductCard';
 
+export default function RelatedProducts({ categoryId }) {
+  const { data: productsData, isLoading } = useGetProductsQuery(
+    { category: categoryId, limit: 7 },
+    { skip: !categoryId }
+  );
+  const scrollContainerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
-export default function RelatedProducts({products, id}) {
-  const scrollContainerRef = useRef(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(false)
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const products = productsData?.products || [];
 
   const checkScroll = () => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
-      setCanScrollLeft(scrollLeft > 0)
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth)
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
     }
-  }
+  };
 
   useEffect(() => {
-    checkScroll()
-    window.addEventListener('resize', checkScroll)
-    return () => window.removeEventListener('resize', checkScroll)
-  }, [])
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScroll);
+    }
+    return () => {
+      window.removeEventListener('resize', checkScroll);
+      if (container) {
+        container.removeEventListener('scroll', checkScroll);
+      }
+    };
+  }, [products]);
+
+  if (isLoading) return <LoadingSkeleton isInline />;
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = direction === 'left' ? -286 : 286 
-      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
-    }
-  }
-
-  const handleProductClick = async (id) => {
-    try {
-      navigate(`/shop/product/${id}`);
-      window.location.reload();
-      await dispatch(getSingleProduct(id));
-    } catch (error) {
-      console.error("Error loading product:", error);
+      const cardWidth = 286; // Card width (260px) + gap (24px)
+      const scrollAmount = direction === 'left' ? -cardWidth : cardWidth;
+      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      setTimeout(checkScroll, 300);
     }
   };
 
@@ -50,49 +55,30 @@ export default function RelatedProducts({products, id}) {
     <section className="w-full lg:py-12 mt-8">
       <div className="container lg:px-0 px-4 overflow-hidden">
         <h2 className="text-2xl font-medium mb-12">Related products</h2>
-        
         <div className="relative mx-[-1rem] md:mx-[-1.5rem]">
-          <div 
+          <div
             ref={scrollContainerRef}
-            className="flex overflow-x-auto gap-6 pb-6 px-4 md:px-6 snap-x snap-mandatory scrollbar-none"
+            className="flex flex-nowrap overflow-x-auto gap-4 pb-6 px-4 md:px-6 snap-x snap-mandatory scrollbar-none"
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
             }}
             onScroll={checkScroll}
           >
-            {products && products.map((product) => (
-              <Card 
-                key={product._id} 
-                className="border-none shadow-none flex-none w-[280px] snap-start text-center"
-                onClick={() => handleProductClick(product._id)}
-              >
-                <CardContent className="p-0">
-                  <div className="aspect-square relative mb-3">
-                    <img
-                      src={product?.firstVariant?.images}
-                      alt={product?.name}
-                      className="object-cover rounded-lg"
-                    />
-                  </div>
-                  <h3 className="font-medium mb-2">{product?.name}</h3>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-primary">₹{product?.firstVariant?.salePrice.toFixed(2)}</span>
-                    {product.isOriginal && (
-                      <span className="text-sm text-muted-foreground">Original</span>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {products &&
+              products.map((product) => (
+                <div key={product._id} className="min-w-[260px] w-[260px] snap-start">
+                  <ProductCard product={product} id={product._id} />
+                </div>
+              ))}
           </div>
 
           <Button
             variant="outline"
             size="icon"
             className={cn(
-              "absolute left-2 md:left-4 top-1/2 -translate-y-1/2 rounded-full bg-background shadow-md",
-              !canScrollLeft && "hidden"
+              'absolute left-2 md:left-4 top-1/2 -translate-y-1/2 rounded-full bg-background shadow-md',
+              !canScrollLeft && 'hidden'
             )}
             onClick={() => scroll('left')}
           >
@@ -103,8 +89,8 @@ export default function RelatedProducts({products, id}) {
             variant="outline"
             size="icon"
             className={cn(
-              "absolute right-2 md:right-4 top-1/2 -translate-y-1/2 rounded-full bg-background shadow-md",
-              !canScrollRight && "hidden"
+              'absolute right-2 md:right-4 top-1/2 -translate-y-1/2 rounded-full bg-background shadow-md',
+              !canScrollRight && 'hidden'
             )}
             onClick={() => scroll('right')}
           >
@@ -113,5 +99,5 @@ export default function RelatedProducts({products, id}) {
         </div>
       </div>
     </section>
-  )
+  );
 }

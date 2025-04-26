@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useGetProductsQuery } from "@/store/api/userApiSlice"; // Adjust the import path as needed
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import ProductCard from "./ProductCard";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -21,30 +22,35 @@ export default function SearchProduct() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortOption, setSortOption] = useState("AtoZ"); // Default to AtoZ as per backend
+  const [sortOption, setSortOption] = useState("AtoZ"); 
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   // Map frontend sort options to backend sort values
   const sortMap = {
-    featured: "AtoZ", // Assuming featured products are sorted alphabetically by default
+    featured: "AtoZ", 
     "price-asc": "priceLowToHigh",
     "price-desc": "priceHighToLow",
     "new-arrivals": "newArrivals",
-    rating: "AtoZ", // Backend doesn't support rating sort; default to AtoZ
+    rating: "AtoZ", 
   };
 
-  // Use RTK Query hook to fetch products
   const { data, isLoading, error } = useGetProductsQuery({
     page: currentPage,
     limit: ITEMS_PER_PAGE,
-    sort: sortMap[sortOption] || sortOption, // Map frontend sort to backend
-    search: searchTerm || undefined, // Backend supports text search
-    minPrice: 0, // Hardcoded for now; can be made dynamic
-    maxPrice: 100000, // Hardcoded for now; can be made dynamic
+    sort: sortMap[sortOption] || sortOption, 
+    search: searchTerm || undefined, 
+    minPrice: 0, 
+    maxPrice: 100000, 
     featured: sortOption === "featured" ? true : undefined,
   });
 
   const products = data?.products || [];
+  console.log("products form the search", products[6]);
+  console.log(
+    new Date(products[6]?.createdAt) >
+      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  );
+
   const pagination = data?.pagination || {
     currentPage: 1,
     totalPages: 0,
@@ -54,7 +60,7 @@ export default function SearchProduct() {
 
   const handleSortChange = (value) => {
     setSortOption(value);
-    setCurrentPage(1); // Reset to first page on sort change
+    setCurrentPage(1); 
   };
 
   const handlePageChange = (newPage) => {
@@ -85,6 +91,8 @@ export default function SearchProduct() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="featured">Featured</SelectItem>
+              <SelectItem value="AtoZ">A to Z</SelectItem>
+              <SelectItem value="ZtoA">Z to A</SelectItem>
               <SelectItem value="price-asc">Price: Low to High</SelectItem>
               <SelectItem value="price-desc">Price: High to Low</SelectItem>
               <SelectItem value="rating">Top Rated</SelectItem>
@@ -100,7 +108,9 @@ export default function SearchProduct() {
         </div>
       ) : error ? (
         <div className="text-center py-8">
-          <p className="text-red-500">Failed to load products: {error.message}</p>
+          <p className="text-red-500">
+            Failed to load products: {error.message}
+          </p>
         </div>
       ) : (
         <>
@@ -124,20 +134,26 @@ export default function SearchProduct() {
                     )}
                   </div>
                   <p className="font-semibold">{product.name}</p>
+                  <p className="text-sm text-gray-500 underline">{product.category.name}</p>                  
                   <p className="text-sm text-gray-600 line-clamp-3">{product.description}</p>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center">
                   <p className="text-lg font-bold">
-                    ₹{product.effectivePrice.toFixed(2)} {/* Backend calculates effectivePrice */}
+                    ₹{product?.variants.length > 0 ? product.variants[0].salePrice?.toFixed(2) : product.salePrice?.toFixed(2)} 
                   </p>
-                  {product.salePrice && product.salePrice < product.actualPrice && (
                     <p className="text-sm text-gray-600 line-through">
-                      ₹{product.actualPrice.toFixed(2)}
+                    ₹{product?.variants.length > 0 ? product.variants[0].actualPrice?.toFixed(2) : product.actualPrice?.toFixed(2)}
                     </p>
-                  )}
                 </CardFooter>
               </Card>
             ))}
+            {/* {products.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                id={product._id}
+              />
+            ))} */}
           </div>
 
           {products.length === 0 && (
