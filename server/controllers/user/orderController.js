@@ -709,6 +709,8 @@ exports.retryPayment = async (req, res) => {
   try {
     const { orderId } = req.body;
     const userId = req.user.id;
+    console.log("orderId and userId",orderId, userId);
+    
 
     // Find the pending order
     const order = await Order.findOne({
@@ -716,7 +718,7 @@ exports.retryPayment = async (req, res) => {
       user: userId,
       paymentMethod: "razorpay",
       status: "pending",
-      paymentStatus: "failed",
+      paymentStatus: "pending",
     });
 
     if (!order) {
@@ -869,6 +871,7 @@ exports.getInvoice = async (req, res) => {
     doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, doc.y + 5);
     doc.text(`Order ID: ${order.orderId}`, 50, doc.y + 5);
     doc.text(`Payment Method: ${order.paymentMethod || 'Online Payment'}`, 50, doc.y + 5);
+    doc.text(`Payment Status: ${order.paymentStatus || 'Online Payment'}`, 50, doc.y + 5);
     
     // Right column - Customer details
     const customerStartY = startY;
@@ -880,7 +883,7 @@ exports.getInvoice = async (req, res) => {
     doc.y = Math.max(doc.y, customerStartY + 100);
     
     // Shipping Address Section
-    doc.font('Helvetica-Bold').fontSize(12).text("SHIPPING ADDRESS:", 50, doc.y);
+    doc.font('Helvetica-Bold').fontSize(12).text("SHIPPING ADDRESS:", 50, doc.y+5);
     const address = order.shippingAddress;
     doc.font('Helvetica').fontSize(10).text(`${address.addressLine}`, 50, doc.y + 5);
     doc.text(`${address.city}, ${address.state}`, 50, doc.y + 5);
