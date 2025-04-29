@@ -311,31 +311,23 @@ export const adminApiSlice = adminBaseApiSlice.injectEndpoints({
       query: (params = {}) => {
         const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', type, search } = params;
         
-        let queryString = `page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+        const queryParams = { page, limit, sortBy, sortOrder };
         
         if (type) {
-          queryString += `&type=${type}`;
+          queryParams.type = type;
         }
         
         if (search) {
-          queryString += `&search=${encodeURIComponent(search)}`;
+          queryParams.search = search;
         }
         
         return {
-          url: `/wallet`,
+          url: '/wallet',
           method: 'GET',
-          query: params,
+          params: queryParams,
         };
       },
       providesTags: ['AdminWallet'],
-    }),
-
-    getWalletSummary: builder.query({
-      query: () => ({
-        url: '/api/admin/wallet/summary',
-        method: 'GET',
-      }),
-      providesTags: ['WalletSummary'],
     }),
 
     getTransactionById: builder.query({
@@ -388,6 +380,5 @@ export const {
   //wallet
   useGetAdminWalletQuery,
   useGetTransactionByIdQuery,
-  useGetWalletSummaryQuery,
 
 } = adminApiSlice;

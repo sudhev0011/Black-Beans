@@ -285,7 +285,7 @@ export default function AddProductDialog({ categories, onAddProduct }) {
                           name="discountPercentage"
                           type="number"
                           min="0"
-                          max="100"
+                          max="80"
                           step="0.01"
                           className="col-span-3"
                         />

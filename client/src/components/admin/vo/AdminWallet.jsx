@@ -93,7 +93,8 @@ const AdminWalletComponent = () => {
 
   useEffect(() => {
     refetch();
-  }, [page, limit, sortBy, sortOrder, transactionType]);
+  }, [page, limit, sortBy, sortOrder, transactionType, searchQuery]);
+  
 
   // Table sorting handler
   const handleSortChange = (column) => {
@@ -766,9 +767,6 @@ const AdminWalletComponent = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDetailsOpen(false)}>
               Close
-            </Button>
-            <Button variant="outline" onClick={() => navigate('')}>
-              Go to Order Details
             </Button>
           </DialogFooter>
         </DialogContent>

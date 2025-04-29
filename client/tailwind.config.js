@@ -17,10 +17,11 @@ module.exports = {
     		}
     	},
     	extend: {
-			fontFamily:{
-				marcellus:['Tenor Sans']
-
-			},
+    		fontFamily: {
+    			marcellus: [
+    				'Tenor Sans'
+    			]
+    		},
     		colors: {
     			border: 'hsl(var(--border))',
     			input: 'hsl(var(--input))',
@@ -28,7 +29,7 @@ module.exports = {
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',
     			primary: {
-    				DEFAULT: "#114639",
+    				DEFAULT: '#114639',
     				foreground: 'hsl(var(--primary-foreground))'
     			},
     			secondary: {
@@ -65,7 +66,7 @@ module.exports = {
     				border: 'hsl(var(--sidebar-border))',
     				ring: 'hsl(var(--sidebar-ring))'
     			},
-				customGreen:'#114639',
+    			customGreen: '#114639'
     		},
     		borderRadius: {
     			lg: 'var(--radius)',
@@ -88,11 +89,25 @@ module.exports = {
     				to: {
     					height: 0
     				}
+    			},
+    			meteor: {
+    				'0%': {
+    					transform: 'rotate(var(--angle)) translateX(0)',
+    					opacity: '1'
+    				},
+    				'70%': {
+    					opacity: '1'
+    				},
+    				'100%': {
+    					transform: 'rotate(var(--angle)) translateX(-500px)',
+    					opacity: '0'
+    				}
     			}
     		},
     		animation: {
     			'accordion-down': 'accordion-down 0.2s ease-out',
-    			'accordion-up': 'accordion-up 0.2s ease-out'
+    			'accordion-up': 'accordion-up 0.2s ease-out',
+    			meteor: 'meteor 5s linear infinite'
     		}
     	}
     },

@@ -54,7 +54,7 @@ import {
 } from "../../../store/api/adminApiSlice";
 import { toast } from "sonner";
 import debounce from "lodash/debounce";
-
+import { categorySchema } from "@/utils/schemas";
 // Custom Switch component to integrate with Formik
 const FormikSwitch = ({ name, ...props }) => {
   const [field, meta, helpers] = useField(name);
@@ -70,59 +70,6 @@ const FormikSwitch = ({ name, ...props }) => {
   );
 };
 
-// Validation Schema (aligned with backend)
-const categorySchema = Yup.object().shape({
-  name: Yup.string()
-    .required("Name is required")
-    .min(2, "Name must be at least 2 characters")
-    .matches(
-      /^[a-zA-Z0-9\s\-\'\.]+$/,
-      "Name can only contain letters, numbers, spaces, hyphens, apostrophes, and periods"
-    )
-    .test(
-      "not-only-whitespace",
-      "Name cannot be only whitespace",
-      (value) => value && value.trim().length > 0
-    ),
-  description: Yup.string()
-    .matches(
-      /^[a-zA-Z0-9\s\.\,\!\?\-\']*$/,
-      "Description can only contain letters, numbers, spaces, and basic punctuation"
-    )
-    .nullable(),
-  isListed: Yup.boolean().required("Listing status is required"),
-  discountPercentage: Yup.number()
-    .min(0, "Discount must be at least 0%")
-    .max(80, "Discount cannot exceed 80%")
-    .when("isActive", {
-      is: true,
-      then: (schema) =>
-        schema.required("Discount percentage is required when offer is active"),
-      otherwise: (schema) => schema.nullable(),
-    }),
-  startDate: Yup.date()
-    .nullable()
-    .when("isActive", {
-      is: true,
-      then: (schema) =>
-        schema
-          .required("Start date is required when offer is active")
-          .typeError("Invalid date"),
-      otherwise: (schema) => schema.nullable(),
-    }),
-  endDate: Yup.date()
-    .nullable()
-    .when("isActive", {
-      is: true,
-      then: (schema) =>
-        schema
-          .required("End date is required when offer is active")
-          .typeError("Invalid date")
-          .min(Yup.ref("startDate"), "End date cannot be before start date"),
-      otherwise: (schema) => schema.nullable(),
-    }),
-  isActive: Yup.boolean(),
-});
 
 export default function CategoryManagement() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -694,9 +641,16 @@ export default function CategoryManagement() {
 
       <AlertDialog
         open={isConfirmDialogOpen}
-        onOpenChange={setIsConfirmDialogOpen}
+        onOpenChange={(open) => {
+          setIsConfirmDialogOpen(open);
+          if (!open && pendingSubmit) {
+            pendingSubmit.form === "add"
+              ? setIsAddDialogOpen(true)
+              : setIsEditDialogOpen(true);
+          }
+        }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Category Changes</AlertDialogTitle>
             <AlertDialogDescription>
@@ -728,7 +682,7 @@ export default function CategoryManagement() {
                       }).unwrap();
                     }
                     toast.success("Category added successfully!");
-                    setIsAddDialogOpen(false);
+                    resetForm();
                   } else if (form === "edit") {
                     await updateCategory({
                       id: selectedCategory._id,
@@ -748,13 +702,16 @@ export default function CategoryManagement() {
                       await deleteCategoryOffer(selectedCategory._id).unwrap();
                     }
                     toast.success("Category updated successfully!");
-                    setIsEditDialogOpen(false);
                   }
                 } catch (error) {
                   toast.error(
                     error?.data?.message ||
                       `Failed to ${form === "add" ? "add" : "update"} category`
                   );
+                  // Reopen the appropriate dialog on error
+                  form === "add"
+                    ? setIsAddDialogOpen(true)
+                    : setIsEditDialogOpen(true);
                 } finally {
                   setPendingSubmit(null);
                 }

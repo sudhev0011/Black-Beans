@@ -504,6 +504,8 @@ const OrderDetails = () => {
   const navigate = useNavigate();
   const { orderId } = useParams();
   const { data: order, isLoading, refetch } = useGetOrderDetailsQuery(orderId);
+  console.log('single order data form the backend',order);
+  
   const [downloadInvoice, { isLoading: isDownloadingInvoice }] = useDownloadInvoiceMutation();
   
   const [requestReturn, { isLoading: isRequestingReturn }] = useRequestReturnMutation();
@@ -871,7 +873,7 @@ const OrderDetails = () => {
                         <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-md border bg-muted overflow-hidden flex-shrink-0">
                           <img 
                             src={item?.productId?.images[0] || "/placeholder.svg"} 
-                            alt={item?.name} 
+                            alt={item?.productId?.name} 
                             className="h-full w-full object-cover transition-transform hover:scale-110" 
                           />
                         </div>
@@ -879,10 +881,8 @@ const OrderDetails = () => {
                           <h4 className="font-medium text-sm sm:text-base truncate">{item?.productId?.name}</h4>
                           <div className="flex flex-wrap gap-2">
                             <p className="text-xs sm:text-sm text-muted-foreground">Qty: {item?.quantity}</p>
-                            {item.variantId?.name && (
-                              <p className="text-xs sm:text-sm text-muted-
-
-foreground">Variant: {item.variantId.name}</p>
+                            {item.variantId?.size && (
+                              <p className="text-xs sm:text-sm text-muted-foreground">Variant: {item.variantId.size}{item.variantId.unit}</p>
                             )}
                           </div>
                         </div>
@@ -1095,7 +1095,7 @@ foreground">Variant: {item.variantId.name}</p>
                     >
                       <div className="flex justify-between items-center text-xs sm:text-sm">
                         <span>Subtotal</span>
-                        <span lassName='sm:text-sm'> ₹{order.subtotal.toFixed(2)}</span>
+                        <span className='sm:text-sm'> ₹{order.subtotal.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between items-center text-xs sm:text-sm">
                         <span>Shipping</span>

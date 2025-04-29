@@ -116,24 +116,37 @@ export default function CouponManagement() {
   // Validate form
   const validateForm = () => {
     const errors = {};
-    if (!formData.code.trim()) errors.code = "Coupon code is required";
+    
+    if (!formData.code.trim()) {
+      errors.code = "Coupon code is required";
+    } else if (!/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{3,}$/.test(formData.code.trim())) {
+      errors.code = "Coupon code must be at least 3 alphanumeric characters";
+    }
+  
     if (!["percentage", "fixed", "shipping"].includes(formData.discountType)) {
       errors.discountType = "Invalid discount type";
     }
+    
     if (!formData.discountValue || Number(formData.discountValue) <= 0) {
       errors.discountValue = "Discount value must be positive";
     }
+    
     if (formData.minPurchase && Number(formData.minPurchase) < 0) {
       errors.minPurchase = "Minimum purchase cannot be negative";
     }
+    
     if (!formData.startDate) errors.startDate = "Start date is required";
+    
     if (!formData.endDate) errors.endDate = "End date is required";
+    
     if (formData.startDate && formData.endDate && new Date(formData.endDate) <= new Date(formData.startDate)) {
       errors.endDate = "End date must be after start date";
     }
+    
     if (!formData.usageLimit || Number(formData.usageLimit) < 1) {
       errors.usageLimit = "Usage limit must be at least 1";
     }
+    
     return errors;
   };
 
@@ -311,7 +324,6 @@ export default function CouponManagement() {
                     <SelectContent>
                       <SelectItem value="percentage">Percentage</SelectItem>
                       <SelectItem value="fixed">Fixed Amount</SelectItem>
-                      <SelectItem value="referral ">Referral</SelectItem>
                       <SelectItem value="shipping">Free Shipping</SelectItem>
                     </SelectContent>
                   </Select>

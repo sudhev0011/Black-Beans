@@ -604,9 +604,9 @@ const addProduct = async (req, res) => {
         discountPercentage === undefined ||
         isNaN(discountPercentage) ||
         discountPercentage < 0 ||
-        discountPercentage > 100
+        discountPercentage > 80
       ) {
-        return res.status(400).json({ success: false, message: "discountPercentage is required and must be a number between 0 and 100" });
+        return res.status(400).json({ success: false, message: "discountPercentage is required and must be a number between 0 and 80" });
       }
       if (!startDate || isNaN(Date.parse(startDate))) {
         return res.status(400).json({ success: false, message: "startDate is required and must be a valid date" });

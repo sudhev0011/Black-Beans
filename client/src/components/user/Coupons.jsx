@@ -1,114 +1,289 @@
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Ticket, Copy, Clock, CheckCircle, Search } from "lucide-react"
+// import { useState } from "react"
+// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+// import { Button } from "@/components/ui/button"
+// import { Input } from "@/components/ui/input"
+// import { Label } from "@/components/ui/label"
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+// import { Ticket, Copy, Clock, CheckCircle, Search } from "lucide-react"
 
-const CouponsComponent = () => {
-  const [couponCode, setCouponCode] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
+// const CouponsComponent = () => {
+//   const [couponCode, setCouponCode] = useState("")
+//   const [searchTerm, setSearchTerm] = useState("")
 
  
-  const coupons = {
-    available: [
-      {
-        id: "COUPON-001",
-        code: "SUMMER25",
-        discount: "25% off",
-        minPurchase: 100,
-        validUntil: "2023-08-31T23:59:59Z",
-        description: "Summer sale! Get 25% off on all products with minimum purchase of $100",
-      },
-      {
-        id: "COUPON-002",
-        code: "FREESHIP",
-        discount: "Free Shipping",
-        minPurchase: 50,
-        validUntil: "2023-07-15T23:59:59Z",
-        description: "Free shipping on all orders above $50",
-      },
-      {
-        id: "COUPON-003",
-        code: "NEWUSER10",
-        discount: "$10 off",
-        minPurchase: 0,
-        validUntil: "2023-12-31T23:59:59Z",
-        description: "Welcome offer for new users! Get $10 off on your first purchase",
-      },
-    ],
-    used: [
-      {
-        id: "COUPON-004",
-        code: "SPRING20",
-        discount: "20% off",
-        usedOn: "2023-04-10T14:30:00Z",
-        savedAmount: 15.99,
-        orderId: "ORD-1220",
-      },
-      {
-        id: "COUPON-005",
-        code: "WELCOME5",
-        discount: "$5 off",
-        usedOn: "2023-03-05T11:45:00Z",
-        savedAmount: 5.0,
-        orderId: "ORD-1205",
-      },
-    ],
-  }
+//   const coupons = {
+//     available: [
+//       {
+//         id: "COUPON-001",
+//         code: "SUMMER25",
+//         discount: "25% off",
+//         minPurchase: 100,
+//         validUntil: "2023-08-31T23:59:59Z",
+//         description: "Summer sale! Get 25% off on all products with minimum purchase of $100",
+//       },
+//       {
+//         id: "COUPON-002",
+//         code: "FREESHIP",
+//         discount: "Free Shipping",
+//         minPurchase: 50,
+//         validUntil: "2023-07-15T23:59:59Z",
+//         description: "Free shipping on all orders above $50",
+//       },
+//       {
+//         id: "COUPON-003",
+//         code: "NEWUSER10",
+//         discount: "$10 off",
+//         minPurchase: 0,
+//         validUntil: "2023-12-31T23:59:59Z",
+//         description: "Welcome offer for new users! Get $10 off on your first purchase",
+//       },
+//     ],
+//     used: [
+//       {
+//         id: "COUPON-004",
+//         code: "SPRING20",
+//         discount: "20% off",
+//         usedOn: "2023-04-10T14:30:00Z",
+//         savedAmount: 15.99,
+//         orderId: "ORD-1220",
+//       },
+//       {
+//         id: "COUPON-005",
+//         code: "WELCOME5",
+//         discount: "$5 off",
+//         usedOn: "2023-03-05T11:45:00Z",
+//         savedAmount: 5.0,
+//         orderId: "ORD-1205",
+//       },
+//     ],
+//   }
 
-  const handleApplyCoupon = () => {
-    if (!couponCode.trim()) {
-      return
-    }
+//   const handleApplyCoupon = () => {
+//     if (!couponCode.trim()) {
+//       return
+//     }
 
-    // In a real app, we would call the mutation
-    // applyCoupon({ code: couponCode });
+//     // In a real app, we would call the mutation
+//     // applyCoupon({ code: couponCode });
 
-    alert(`Applied coupon: ${couponCode}`)
-    setCouponCode("")
-  }
+//     alert(`Applied coupon: ${couponCode}`)
+//     setCouponCode("")
+//   }
+
+//   const handleCopyCode = (code) => {
+//     navigator.clipboard.writeText(code)
+//     alert(`Copied coupon code: ${code}`)
+//   }
+
+//   const filteredAvailableCoupons = coupons.available.filter(
+//     (coupon) =>
+//       coupon.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//       coupon.description.toLowerCase().includes(searchTerm.toLowerCase()),
+//   )
+
+//   return (
+//     <div className="space-y-6">
+//       <Card>
+//         <CardHeader>
+//           <CardTitle className="text-2xl font-bold text-primary">My Coupons</CardTitle>
+//           <CardDescription>View and apply your available coupons</CardDescription>
+//         </CardHeader>
+//         <CardContent className="space-y-6">
+//           <div className="flex flex-col md:flex-row gap-4">
+//             <div className="flex-1">
+//               <Label htmlFor="coupon-code">Apply a Coupon</Label>
+//               <div className="flex mt-1">
+//                 <Input
+//                   id="coupon-code"
+//                   placeholder="Enter coupon code"
+//                   value={couponCode}
+//                   onChange={(e) => setCouponCode(e.target.value)}
+//                   className="rounded-r-none"
+//                 />
+//                 <Button
+//                   onClick={handleApplyCoupon}
+//                   className="bg-primary hover:bg-primary/90 rounded-l-none"
+//                   disabled={!couponCode.trim()}
+//                 >
+//                   Apply
+//                 </Button>
+//               </div>
+//             </div>
+//             <div className="flex-1">
+//               <Label htmlFor="search-coupons">Search Coupons</Label>
+//               <div className="relative mt-1">
+//                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+//                 <Input
+//                   id="search-coupons"
+//                   placeholder="Search by code or description"
+//                   value={searchTerm}
+//                   onChange={(e) => setSearchTerm(e.target.value)}
+//                   className="pl-8"
+//                 />
+//               </div>
+//             </div>
+//           </div>
+//         </CardContent>
+//       </Card>
+
+//       <Tabs defaultValue="available">
+//         <TabsList className="grid w-full grid-cols-2">
+//           <TabsTrigger value="available">Available Coupons</TabsTrigger>
+//           <TabsTrigger value="used">Used Coupons</TabsTrigger>
+//         </TabsList>
+
+//         <TabsContent value="available" className="space-y-4 mt-6">
+//           {filteredAvailableCoupons.length === 0 ? (
+//             <div className="text-center py-8">
+//               <Ticket className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
+//               <h3 className="text-lg font-medium">No coupons found</h3>
+//               <p className="text-muted-foreground">
+//                 {searchTerm ? "No coupons match your search criteria." : "You don't have any available coupons."}
+//               </p>
+//             </div>
+//           ) : (
+//             filteredAvailableCoupons.map((coupon) => (
+//               <Card key={coupon.id} className="overflow-hidden">
+//                 <div className="flex flex-col md:flex-row">
+//                   <div className="bg-primary p-6 text-white flex flex-col items-center justify-center md:w-1/4">
+//                     <Ticket className="h-8 w-8 mb-2" />
+//                     <h3 className="text-xl font-bold">{coupon.discount}</h3>
+//                     <p className="text-sm text-center">Min. Purchase: ${coupon.minPurchase}</p>
+//                   </div>
+//                   <div className="p-6 flex-1">
+//                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+//                       <div>
+//                         <h3 className="text-lg font-medium">{coupon.description}</h3>
+//                         <div className="flex items-center mt-2">
+//                           <Clock className="h-4 w-4 text-muted-foreground mr-1" />
+//                           <span className="text-sm text-muted-foreground">
+//                             Valid until {new Date(coupon.validUntil).toLocaleDateString()}
+//                           </span>
+//                         </div>
+//                       </div>
+//                       <div className="flex items-center gap-2">
+//                         <div className="bg-muted px-3 py-2 rounded-md font-mono text-sm">{coupon.code}</div>
+//                         <Button
+//                           variant="ghost"
+//                           size="icon"
+//                           onClick={() => handleCopyCode(coupon.code)}
+//                           title="Copy code"
+//                         >
+//                           <Copy className="h-4 w-4" />
+//                         </Button>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </Card>
+//             ))
+//           )}
+//         </TabsContent>
+
+//         <TabsContent value="used" className="space-y-4 mt-6">
+//           {coupons.used.length === 0 ? (
+//             <div className="text-center py-8">
+//               <Ticket className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
+//               <h3 className="text-lg font-medium">No used coupons</h3>
+//               <p className="text-muted-foreground">You haven't used any coupons yet.</p>
+//             </div>
+//           ) : (
+//             coupons.used.map((coupon) => (
+//               <Card key={coupon.id}>
+//                 <CardContent className="p-6">
+//                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+//                     <div className="flex items-center gap-3">
+//                       <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+//                         <CheckCircle className="h-5 w-5 text-green-500" />
+//                       </div>
+//                       <div>
+//                         <h3 className="font-medium">
+//                           {coupon.code} - {coupon.discount}
+//                         </h3>
+//                         <p className="text-sm text-muted-foreground">
+//                           Used on {new Date(coupon.usedOn).toLocaleDateString()} for Order #{coupon.orderId}
+//                         </p>
+//                       </div>
+//                     </div>
+//                     <div className="text-green-600 font-medium">Saved ${coupon.savedAmount.toFixed(2)}</div>
+//                   </div>
+//                 </CardContent>
+//               </Card>
+//             ))
+//           )}
+//         </TabsContent>
+//       </Tabs>
+//     </div>
+//   )
+// }
+
+// export default CouponsComponent
+
+
+
+
+
+
+
+
+
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Ticket, Copy, Clock, CheckCircle, Search } from "lucide-react";
+import { useGetAllAvailableCouponsQuery, useGetUsedCouponsQuery } from "@/store/api/userApiSlice";
+import { toast } from "sonner";
+
+const CouponsComponent = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [availablePage, setAvailablePage] = useState(1);
+  const [usedPage, setUsedPage] = useState(1);
+  const limit = 5; // Number of coupons per page
+
+  // Fetch available coupons
+  const { data: availableData, isLoading: isLoadingAvailable, error: availableError } = useGetAllAvailableCouponsQuery({
+    page: availablePage,
+    limit,
+    search: searchTerm,
+  });
+
+  const { coupons: availableCoupons = [], total: availableTotal = 0, totalPages: availableTotalPages = 1 } = availableData || {};
+
+  // Fetch used coupons
+  const { data: usedData, isLoading: isLoadingUsed, error: usedError } = useGetUsedCouponsQuery({
+    page: usedPage,
+    limit,
+    search: searchTerm,
+  });
+  console.log("used coupond",usedData);
+  
+
+  const { coupons: usedCoupons = [], total: usedTotal = 0, totalPages: usedTotalPages = 1 } = usedData || {};
 
   const handleCopyCode = (code) => {
-    navigator.clipboard.writeText(code)
-    alert(`Copied coupon code: ${code}`)
-  }
+    navigator.clipboard.writeText(code);
+    toast.success(`Copied coupon code: ${code}`);
+  };
 
-  const filteredAvailableCoupons = coupons.available.filter(
+  // Client-side filtering for available coupons (to include description search)
+  const filteredAvailableCoupons = availableCoupons.filter(
     (coupon) =>
       coupon.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      coupon.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      coupon.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-primary">My Coupons</CardTitle>
-          <CardDescription>View and apply your available coupons</CardDescription>
+          <CardDescription>View your available and used coupons</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <Label htmlFor="coupon-code">Apply a Coupon</Label>
-              <div className="flex mt-1">
-                <Input
-                  id="coupon-code"
-                  placeholder="Enter coupon code"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  className="rounded-r-none"
-                />
-                <Button
-                  onClick={handleApplyCoupon}
-                  className="bg-primary hover:bg-primary/90 rounded-l-none"
-                  disabled={!couponCode.trim()}
-                >
-                  Apply
-                </Button>
-              </div>
-            </div>
             <div className="flex-1">
               <Label htmlFor="search-coupons">Search Coupons</Label>
               <div className="relative mt-1">
@@ -117,7 +292,11 @@ const CouponsComponent = () => {
                   id="search-coupons"
                   placeholder="Search by code or description"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setAvailablePage(1); // Reset to page 1 on search
+                    setUsedPage(1);
+                  }}
                   className="pl-8"
                 />
               </div>
@@ -133,7 +312,13 @@ const CouponsComponent = () => {
         </TabsList>
 
         <TabsContent value="available" className="space-y-4 mt-6">
-          {filteredAvailableCoupons.length === 0 ? (
+          {isLoadingAvailable ? (
+            <div className="text-center py-8">Loading available coupons...</div>
+          ) : availableError ? (
+            <div className="text-center py-8 text-red-500">
+              Error loading available coupons: {availableError.data?.message || availableError.message}
+            </div>
+          ) : filteredAvailableCoupons.length === 0 ? (
             <div className="text-center py-8">
               <Ticket className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
               <h3 className="text-lg font-medium">No coupons found</h3>
@@ -142,80 +327,121 @@ const CouponsComponent = () => {
               </p>
             </div>
           ) : (
-            filteredAvailableCoupons.map((coupon) => (
-              <Card key={coupon.id} className="overflow-hidden">
-                <div className="flex flex-col md:flex-row">
-                  <div className="bg-primary p-6 text-white flex flex-col items-center justify-center md:w-1/4">
-                    <Ticket className="h-8 w-8 mb-2" />
-                    <h3 className="text-xl font-bold">{coupon.discount}</h3>
-                    <p className="text-sm text-center">Min. Purchase: ${coupon.minPurchase}</p>
-                  </div>
-                  <div className="p-6 flex-1">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div>
-                        <h3 className="text-lg font-medium">{coupon.description}</h3>
-                        <div className="flex items-center mt-2">
-                          <Clock className="h-4 w-4 text-muted-foreground mr-1" />
-                          <span className="text-sm text-muted-foreground">
-                            Valid until {new Date(coupon.validUntil).toLocaleDateString()}
-                          </span>
+            <>
+              {filteredAvailableCoupons.map((coupon) => (
+                <Card key={coupon.id} className="overflow-hidden">
+                  <div className="flex flex-col md:flex-row">
+                    <div className="bg-primary p-6 text-white flex flex-col items-center justify-center md:w-1/4">
+                      <Ticket className="h-8 w-8 mb-2" />
+                      <h3 className="text-xl font-bold">{coupon.discount}</h3>
+                      <p className="text-sm text-center">Min. Purchase: ₹{coupon.minPurchase}</p>
+                    </div>
+                    <div className="p-6 flex-1">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                          <h3 className="text-lg font-medium">{coupon.description}</h3>
+                          <div className="flex items-center mt-2">
+                            <Clock className="h-4 w-4 text-muted-foreground mr-1" />
+                            <span className="text-sm text-muted-foreground">
+                              {coupon.validUntil
+                                ? `Valid until ${new Date(coupon.validUntil).toLocaleDateString()}`
+                                : "No expiry"}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="bg-muted px-3 py-2 rounded-md font-mono text-sm">{coupon.code}</div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleCopyCode(coupon.code)}
-                          title="Copy code"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <div className="bg-muted px-3 py-2 rounded-md font-mono text-sm">{coupon.code}</div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleCopyCode(coupon.code)}
+                            title="Copy code"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            ))
+                </Card>
+              ))}
+              <div className="flex justify-center gap-4 mt-4">
+                <Button
+                  disabled={availablePage === 1}
+                  onClick={() => setAvailablePage(availablePage - 1)}
+                >
+                  Previous
+                </Button>
+                <span>Page {availablePage} of {availableTotalPages}</span>
+                <Button
+                  disabled={availablePage >= availableTotalPages}
+                  onClick={() => setAvailablePage(availablePage + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
           )}
         </TabsContent>
 
         <TabsContent value="used" className="space-y-4 mt-6">
-          {coupons.used.length === 0 ? (
+          {isLoadingUsed ? (
+            <div className="text-center py-8">Loading used coupons...</div>
+          ) : usedError ? (
+            <div className="text-center py-8 text-red-500">
+              Error loading used coupons: {usedError.data?.message || usedError.message}
+            </div>
+          ) : usedCoupons.length === 0 ? (
             <div className="text-center py-8">
               <Ticket className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
               <h3 className="text-lg font-medium">No used coupons</h3>
               <p className="text-muted-foreground">You haven't used any coupons yet.</p>
             </div>
           ) : (
-            coupons.used.map((coupon) => (
-              <Card key={coupon.id}>
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                        <CheckCircle className="h-5 w-5 text-green-500" />
+            <>
+              {usedCoupons.map((coupon) => (
+                <Card key={coupon.id}>
+                  <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium">
+                            {coupon.code} - {coupon.discount}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            Used on {new Date(coupon.usedOn).toLocaleDateString()} for Order #{coupon.orderId}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium">
-                          {coupon.code} - {coupon.discount}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Used on {new Date(coupon.usedOn).toLocaleDateString()} for Order #{coupon.orderId}
-                        </p>
-                      </div>
+                      <div className="text-green-600 font-medium">Saved ₹{coupon.savedAmount.toFixed(2)}</div>
                     </div>
-                    <div className="text-green-600 font-medium">Saved ${coupon.savedAmount.toFixed(2)}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))}
+              <div className="flex justify-center gap-4 mt-4">
+                <Button
+                  disabled={usedPage === 1}
+                  onClick={() => setUsedPage(usedPage - 1)}
+                >
+                  Previous
+                </Button>
+                <span>Page {usedPage} of {usedTotalPages}</span>
+                <Button
+                  disabled={usedPage >= usedTotalPages}
+                  onClick={() => setUsedPage(usedPage + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
           )}
         </TabsContent>
       </Tabs>
     </div>
-  )
-}
+  );
+};
 
-export default CouponsComponent
-
+export default CouponsComponent;

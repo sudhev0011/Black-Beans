@@ -944,8 +944,8 @@ const ReferEarnComponent = () => {
                   <TableBody>
                     {referrals.history.map((entry, index) => (
                       <TableRow key={index}>
-                        <TableCell>{entry.friend}</TableCell>
-                        <TableCell>{entry.status}</TableCell>
+                        <TableCell>{entry?.name}</TableCell>
+                        <TableCell>{entry?.status}</TableCell>
                         <TableCell>{entry.reward}</TableCell>
                       </TableRow>
                     ))}

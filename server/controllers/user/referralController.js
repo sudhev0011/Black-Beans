@@ -109,28 +109,29 @@ const transporter = nodemailer.createTransport({
 
 const applyReferralCode = async (req, res) => {
   const { referralCode } = req.body;
+  
   const userId = req.user.id;
-
+  
   try {
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
-
+    
     if (!user.isVerified) {
       return res.status(403).json({
         success: false,
         message: "Please verify your email before applying a referral code",
       });
     }
-
+    
     if (user.referredBy) {
       return res.status(400).json({
         success: false,
         message: "Referral code already applied",
       });
     }
-
+    
     const referrer = await User.findOne({ referralCode });
     if (!referrer) {
       return res.status(400).json({

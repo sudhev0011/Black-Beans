@@ -31,7 +31,7 @@ const adminWalletTransactionSchema = new mongoose.Schema({
   },
   transactionType: {
     type: String,
-    enum: ["order", "refund", "return", "item-return", "other"],
+    enum: ["order", "refund", "return", "item-return", "other","referral"],
     required: true,
   },
   status: {

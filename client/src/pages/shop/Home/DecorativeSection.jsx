@@ -171,7 +171,7 @@ import { motion, useInView, useAnimation } from 'framer-motion';
 const DecorativeSection = ({ productsData }) => {
   const [activeSection, setActiveSection] = useState(0);
   const sectionRef = useRef(null);
-  const inView = useInView(sectionRef, { once: false, amount: 0.3 });
+  const inView = useInView(sectionRef, { once: false, amount: 0.4 });
   const controls = useAnimation();
 
   // Content sections data
@@ -228,7 +228,7 @@ const DecorativeSection = ({ productsData }) => {
       const viewportHeight = window.innerHeight;
       
       // Calculate which section to show based on scroll position
-      const newSection = Math.floor(scrollY / (viewportHeight * 0.5)) % sections.length;
+      const newSection = Math.floor(scrollY / (viewportHeight * 0.95)) % sections.length;
       
       if (newSection !== activeSection) {
         setActiveSection(newSection);

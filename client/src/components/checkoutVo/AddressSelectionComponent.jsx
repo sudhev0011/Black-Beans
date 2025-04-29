@@ -34,7 +34,7 @@ const AddressSelectionComponent = ({ selectedAddress, onAddressSelect, error }) 
 
   const handleEditAddress = (address) => {
     setEditingAddress(address)
-    setIsAddingAddress(true)
+    // setIsAddingAddress(true)
   }
 
   const handleAddressFormSubmit = (address) => {

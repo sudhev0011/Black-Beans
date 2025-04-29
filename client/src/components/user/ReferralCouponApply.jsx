@@ -149,7 +149,7 @@ export function ReferralCodePopup({ onClose }) {
           type="text"
           placeholder="Enter referral code"
           value={referralCode}
-          onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+          onChange={(e) => setReferralCode(e.target.value)}
           className="w-full"
           disabled={isLoading}
         />

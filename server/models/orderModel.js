@@ -94,6 +94,17 @@ const orderSchema = new mongoose.Schema({
     min: 0,
   },
   appliedCoupons: [{ code: String, discount: Number }],
+  totalRefunded: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+  refundBreakdown: {
+    subtotal: { type: Number, default: 0 },
+    shipping: { type: Number, default: 0 },
+    tax: { type: Number, default: 0 },
+    discount: { type: Number, default: 0 },
+  },
   total: {
     type: Number,
     required: true,

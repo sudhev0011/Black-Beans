@@ -20,10 +20,10 @@ import {
 } from "lucide-react";
 import {
   useGetCartQuery,
-  useAddToCartMutation,
   useUpdateCartItemMutation,
   useRemoveFromCartMutation,
   useClearCartMutation,
+  useAddToWishlistMutation
 } from "@/store/api/userApiSlice";
 import {
   addToCart,
@@ -54,6 +54,7 @@ const CartComponent = () => {
   const [updateCartItemApi] = useUpdateCartItemMutation();
   const [removeFromCartApi] = useRemoveFromCartMutation();
   const [clearCartApi] = useClearCartMutation();
+  const [addToWishlist] = useAddToWishlistMutation();
   const [error, setError] = useState(null);
   const [outOfStock, setOutOfStock] = useState([]);
   const [blockedProducts, setBlockedProducts] = useState([]);
@@ -104,6 +105,12 @@ const CartComponent = () => {
     try {
       setError(null);
       await removeFromCartApi({ productId, variantId }).unwrap();
+      toast('item removed from cart, wanna add it to wishlist!',{
+        action: {
+          label: "Add",
+          onClick: async()=> await addToWishlist({productId, variantId})
+        }
+      })
     } catch (error) {
       console.error("Remove from cart error:", error);
       // Rollback on failure

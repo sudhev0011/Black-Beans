@@ -66,6 +66,8 @@ const { getWallet, addFunds } = require("../controllers/user/walletController");
 const {
   applyCoupon,
   getAvailableCoupons,
+  getUsedCoupons,
+  getAllAvailableCoupons
 } = require("../controllers/common/couponController");
 
 const { applyReferralCode,getReferrals } = require("../controllers/user/referralController");
@@ -206,12 +208,16 @@ userRoute.post(
 userRoute.get("/wallet", authenticateWithRole(["user"]), getWallet);
 userRoute.post("/wallet/add", authenticateWithRole(["user"]), addFunds);
 
+//coupons
 userRoute.post("/coupons/apply", authenticateWithRole(["user"]), applyCoupon);
 userRoute.get(
   "/coupons/available",
   authenticateWithRole(["user"]),
   getAvailableCoupons
 );
+userRoute.get('/coupons/usedCoupons',authenticateWithRole(["user"]),getUsedCoupons)
+userRoute.get('/coupons/all-available',authenticateWithRole(["user"]),getAllAvailableCoupons)
+
 
 //referral
 userRoute.post("/referral/apply", authenticateWithRole(["user"]), applyReferralCode);

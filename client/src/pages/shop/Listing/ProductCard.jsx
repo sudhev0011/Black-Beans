@@ -9,6 +9,7 @@ import { Eye, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import QuickView from '@/components/quickView/QuickView'
 
 const ProductCard = ({ product, id }) => {
   const [addToWishlist, { isLoading: isAddingToWishlist }] = useAddToWishlistMutation();
@@ -16,6 +17,7 @@ const ProductCard = ({ product, id }) => {
   const { data: wishlistData } = useGetWishlistQuery();
 
   const [hovered, setHovered] = useState(false);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false); // State for QuickView dialog
 
   const wishlist = wishlistData?.items || [];
   const isInWishlist = wishlist.some((item) => item.product._id === product._id);
@@ -63,90 +65,110 @@ const ProductCard = ({ product, id }) => {
     }
   };
 
-  const scrollToTop = ()=>{
-    window.scrollTo({top: 0,behavior: 'smooth'})
-  }
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleQuickViewOpen = (e) => {
+    e.preventDefault(); 
+    e.stopPropagation(); 
+    setIsQuickViewOpen(true); 
+  };
 
   return (
-    <Card
-      className="group overflow-hidden"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={()=>scrollToTop()}
-    >
-      <Link to={`/shop/product/${id}`} className="block">
-        <div className="relative aspect-square">
-          {discountPercentage > 0 && (
-            <Badge className="absolute top-2 left-2 bg-[#438E44] text-white text-sm z-10 rounded-full w-9 h-9 flex items-center justify-center">
-              {discountPercentage}%
-            </Badge>
-          )}
-          <img
-            src={product.images[0] || '/placeholder.svg'}
-            alt={product.name}
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 flex items-center justify-center">
-            <Badge className="bg-white text-black hover:bg-gray-200 transition-colors cursor-pointer">
-              <Eye className="h-4 w-4 mr-1" />
-              Quick View
-            </Badge>
+    <>
+      <Card
+        className="group overflow-hidden"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={() => scrollToTop()}
+      >
+          <div className="relative aspect-square">
+            {discountPercentage > 0 && (
+              <Badge className="absolute top-2 left-2 bg-[#438E44] text-white text-sm z-10 rounded-full w-9 h-9 flex items-center justify-center">
+                {discountPercentage}%
+              </Badge>
+            )}
+            <img
+              src={product.images[0] || '/placeholder.svg'}
+              alt={product.name}
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 flex items-center justify-center">
+              <Badge
+                className="bg-white text-black hover:bg-gray-200 transition-colors cursor-pointer"
+                onClick={handleQuickViewOpen} // Handle QuickView click
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                Quick View
+              </Badge>
+            </div>
           </div>
-        </div>
-      </Link>
-      <CardContent className="p-4">
-        <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
-        <p className="text-sm text-gray-500">{product.category.name}</p>
-      </CardContent>
-      <CardFooter className="p-4 pt-0 flex justify-between items-center">
-        <div className="flex items-baseline gap-2">
-          <span className="text-lg font-bold text-[#114639]">
-            ₹{displayPrice.toFixed(2)}
-          </span>
-          {hasDiscount && (
-            <span className="text-sm text-gray-400 line-through">
-              ₹{originalPrice.toFixed(2)}
+        <Link to={`/shop/product/${id}`} className="block">
+        <CardContent className="p-4">
+          <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
+          <p className="text-sm text-gray-500">{product.category.name}</p>
+        </CardContent>
+        <CardFooter className="p-4 pt-0 flex justify-between items-center">
+          <div className="flex items-baseline gap-2">
+            <span className="text-lg font-bold text-[#114639]">
+              ₹{displayPrice.toFixed(2)}
             </span>
-          )}
-        </div>
-        {/* Wishlist Button */}
-        <button
-          className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors duration-200 ${
-            isInWishlist
-              ? 'bg-red-500 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-red-500 hover:text-white'
-          } ${hovered ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-          onClick={handleWishlistToggle}
-          disabled={isAddingToWishlist || isRemovingFromWishlist}
-          title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-        >
-          {isAddingToWishlist || isRemovingFromWishlist ? (
-            <svg
-              className="animate-spin h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          ) : (
-            <Heart className="h-4 w-4" fill={isInWishlist ? 'currentColor' : 'none'} />
-          )}
-        </button>
-      </CardFooter>
-    </Card>
+            {hasDiscount && (
+              <span className="text-sm text-gray-400 line-through">
+                ₹{originalPrice.toFixed(2)}
+              </span>
+            )}
+          </div>
+          {/* Wishlist Button */}
+          <button
+            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors duration-200 ${
+              isInWishlist
+                ? 'bg-red-500 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-red-500 hover:text-white'
+            } ${hovered ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent card click from triggering scrollToTop
+              handleWishlistToggle();
+            }}
+            disabled={isAddingToWishlist || isRemovingFromWishlist}
+            title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+          >
+            {isAddingToWishlist || isRemovingFromWishlist ? (
+              <svg
+                className="animate-spin h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            ) : (
+              <Heart className="h-4 w-4" fill={isInWishlist ? 'currentColor' : 'none'} />
+            )}
+          </button>
+        </CardFooter>
+        </Link>
+      </Card>
+      {/* Render QuickView Component */}
+      <QuickView
+        product={product}
+        open={isQuickViewOpen}
+        onOpenChange={setIsQuickViewOpen}
+      />
+    </>
   );
 };
 

@@ -6,13 +6,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Save } from "lucide-react";
-import { useEditAddressMutation } from "@/store/api/userApiSlice";
+import { useAddAddressMutation, useEditAddressMutation } from "@/store/api/userApiSlice"; // Add useAddAddressMutation
 import { toast } from "sonner";
 import { addressSchema } from "@/utils/addressZod";
 import { z } from "zod";
 
-const EditAddressComponent = ({ address, onCancel }) => {
-  const [editAddress, { isLoading }] = useEditAddressMutation();
+const AddressFormComponent = ({ address, onCancel }) => {
+  const [addAddress, { isLoading: isAdding }] = useAddAddressMutation(); // Mutation for adding address
+  const [editAddress, { isLoading: isEditing }] = useEditAddressMutation(); // Mutation for editing address
+
+  const isEditMode = !!address; // Determine if editing or adding
 
   const [formData, setFormData] = useState({
     fullname: "",
@@ -30,7 +33,7 @@ const EditAddressComponent = ({ address, onCancel }) => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (address) {
+    if (isEditMode && address) {
       setFormData({
         fullname: address.fullname || "",
         phone: address.phone || "",
@@ -44,7 +47,7 @@ const EditAddressComponent = ({ address, onCancel }) => {
         isDefault: address.isDefault || false,
       });
     }
-  }, [address]);
+  }, [address, isEditMode]);
 
   const sanitizeInput = (value) => {
     return value.replace(/[<>{}]/g, ""); // Remove suspicious characters
@@ -67,7 +70,6 @@ const EditAddressComponent = ({ address, onCancel }) => {
   };
 
   const validate = () => {
-    console.log("Validating formData:", formData); // Debug
     try {
       addressSchema.parse(formData);
       setErrors({});
@@ -78,11 +80,9 @@ const EditAddressComponent = ({ address, onCancel }) => {
         error.errors.forEach((err) => {
           fieldErrors[err.path[0]] = err.message;
         });
-        console.log("Zod validation errors:", fieldErrors); // Debug
         setErrors(fieldErrors);
         return false;
       }
-      console.error("Unexpected error:", error);
       return false;
     }
   };
@@ -90,21 +90,26 @@ const EditAddressComponent = ({ address, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) {
-      console.log("Validation failed with errors:", errors);
       return;
     }
 
     try {
-      console.log("Submitting address data:", formData); // Debug
-      await editAddress({
-        addressId: address._id,
-        addressData: formData,
-      }).unwrap();
-      toast.success("Address updated successfully");
-      onCancel();
+      if (isEditMode) {
+        // Edit existing address
+        await editAddress({
+          addressId: address._id,
+          addressData: formData,
+        }).unwrap();
+        toast.success("Address updated successfully");
+      } else {
+        // Add new address
+        await addAddress(formData).unwrap();
+        toast.success("Address added successfully");
+      }
+      onCancel(); // Close the form
     } catch (error) {
-      console.error("Edit Address Error:", error);
-      toast.error(error?.data?.message || "Failed to update address");
+      console.error(isEditMode ? "Edit Address Error:" : "Add Address Error:", error);
+      toast.error(error?.data?.message || `Failed to ${isEditMode ? "update" : "add"} address`);
     }
   };
 
@@ -124,7 +129,7 @@ const EditAddressComponent = ({ address, onCancel }) => {
           <Button variant="ghost" size="icon" onClick={onCancel}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <CardTitle>Edit Address</CardTitle>
+          <CardTitle>{isEditMode ? "Edit Address" : "Add New Address"}</CardTitle>
         </div>
       </CardHeader>
 
@@ -268,9 +273,9 @@ const EditAddressComponent = ({ address, onCancel }) => {
         </CardContent>
 
         <CardFooter className="flex justify-end">
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isAdding || isEditing}>
             <Save className="h-4 w-4 mr-2" />
-            Save Address
+            {isEditMode ? "Save Address" : "Add Address"}
           </Button>
         </CardFooter>
       </form>
@@ -278,4 +283,4 @@ const EditAddressComponent = ({ address, onCancel }) => {
   );
 };
 
-export default EditAddressComponent;
+export default AddressFormComponent;

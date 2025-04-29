@@ -84,19 +84,6 @@ function AuthLogin() {
     }
   }
 
-  async function handleAdminDemoLogin(demoCredentials) {
-    try {
-      const response = await adminLogin(demoCredentials).unwrap();
-      if (response.success) {
-        dispatch(setAdminCredentials(response.admin));
-        toast.success(response.message);
-        navigate('/admin');
-      }
-    } catch (error) {
-      toast.error(error?.data?.message || 'Admin Demo login failed');
-    }
-  }
-
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <div className="mx-auto w-full max-w-md space-y-6" style={{ maxWidth: '310px' }}>
@@ -140,7 +127,7 @@ function AuthLogin() {
             Register
           </Link>
         </p>
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 justify-center items-center">
           <Button
             variant="outline"
             className="w-1/2"
@@ -149,14 +136,6 @@ function AuthLogin() {
           >
             <FaUserAstronaut style={{ width: '15px', height: '15px' }} /> Demo User
           </Button>
-          {/* <Button
-            variant="outline"
-            className="w-1/2"
-            onClick={() => handleAdminDemoLogin(admin)}
-            disabled={isLoading}
-          >
-            <MdAdminPanelSettings style={{ width: '20px', height: '20px' }} /> Demo Admin
-          </Button> */}
         </div>
       </div>
     </GoogleOAuthProvider>

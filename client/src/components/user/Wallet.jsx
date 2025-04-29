@@ -1,3 +1,480 @@
+// import { useEffect, useState } from "react";
+// import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+// import { 
+//   CreditCard, 
+//   PlusCircle, 
+//   ArrowUpRight, 
+//   ArrowDownLeft, 
+//   Clock, 
+//   CheckCircle, 
+//   AlertCircle,
+//   ChevronLeft,
+//   ChevronRight,
+//   ChevronsUpDown,
+//   ArrowUpDown,
+//   FilterIcon
+// } from "lucide-react";
+// import { useGetWalletQuery, useAddFundsMutation } from "@/store/api/userApiSlice";
+// import { toast } from "sonner";
+// import { 
+//   Select, 
+//   SelectContent, 
+//   SelectItem, 
+//   SelectTrigger, 
+//   SelectValue 
+// } from "@/components/ui/select";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
+
+// const WalletComponent = () => {
+//   const [amount, setAmount] = useState("");
+//   const [activeTab, setActiveTab] = useState("balance");
+  
+//   const [page, setPage] = useState(1);
+//   const [limit, setLimit] = useState(10);
+//   const [sortBy, setSortBy] = useState("createdAt");
+//   const [sortOrder, setSortOrder] = useState("desc");
+//   const [transactionType, setTransactionType] = useState(null);
+
+//   const { data: wallet, isLoading: isWalletLoading, refetch } = useGetWalletQuery({
+//     page,
+//     limit,
+//     sortBy,
+//     sortOrder,
+//     type: transactionType
+//   });
+//   console.log('wallet data from the backend',wallet);
+  
+  
+//   const [addFunds, { isLoading: isAdding }] = useAddFundsMutation();
+
+//   useEffect(() => {
+//     refetch();
+//   }, [page, limit, sortBy, sortOrder, transactionType]);
+
+//   const handleAddFunds = async () => {
+//     if (!amount || isNaN(Number.parseFloat(amount)) || Number.parseFloat(amount) <= 0) {
+//       return;
+//     }
+
+//     try {
+//       await addFunds({ amount: parseFloat(amount) }).unwrap();
+//       toast.success(`Wallet credited with ${amount} rupees`);
+//       setAmount("");
+//       refetch();
+//     } catch (error) {
+//       console.error("Failed to add funds:", error);
+//       toast.error("Failed to add funds. Please try again.");
+//     }
+//   };
+
+//   const getTransactionIcon = (type, status) => {
+//     if (status === "pending") {
+//       return <Clock className="h-5 w-5 text-amber-500" />;
+//     } else if (status === "failed") {
+//       return <AlertCircle className="h-5 w-5 text-red-500" />;
+//     } else if (type === "credit") {
+//       return <ArrowDownLeft className="h-5 w-5 text-green-500" />;
+//     } else {
+//       return <ArrowUpRight className="h-5 w-5 text-red-500" />;
+//     }
+//   };
+
+//   const handleSortChange = (column) => {
+//     if (sortBy === column) {
+//       // Toggle sort order if clicking the same column
+//       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+//     } else {
+//       // Set new column and default to descending
+//       setSortBy(column);
+//       setSortOrder("desc");
+//     }
+//     setPage(1);
+//   };
+
+//   const handleNextPage = () => {
+//     if (wallet?.pagination && page < wallet.pagination.totalPages) {
+//       setPage(page + 1);
+//     }
+//   };
+
+//   const handlePrevPage = () => {
+//     if (page > 1) {
+//       setPage(page - 1);
+//     }
+//   };
+
+//   const handleLimitChange = (value) => {
+//     setLimit(parseInt(value));
+//     setPage(1); 
+//   };
+
+//   const handleTypeFilter = (type) => {
+//     setTransactionType(type);
+//     setPage(1); 
+//   };
+
+//   if (isWalletLoading) {
+//     return <div>Loading wallet...</div>;
+//   }
+
+//   return (
+//     <div className="space-y-6">
+//       <Tabs defaultValue="balance" value={activeTab} onValueChange={setActiveTab}>
+//         <TabsList className="grid w-full grid-cols-2">
+//           <TabsTrigger value="balance">Wallet Balance</TabsTrigger>
+//           <TabsTrigger value="transactions">Transaction History</TabsTrigger>
+//         </TabsList>
+
+//         <TabsContent value="balance" className="space-y-6">
+//           <Card>
+//             <CardHeader>
+//               <CardTitle className="text-2xl font-bold text-primary">My Wallet</CardTitle>
+//               <CardDescription>Manage your wallet balance and add funds</CardDescription>
+//             </CardHeader>
+//             <CardContent className="space-y-6">
+//               <div className="flex flex-col items-center justify-center py-3 bg-muted/90 rounded-lg w-80 h-55">
+//                 <CreditCard className="h-12 w-12 text-primary mb-4" />
+//                 <h3 className="text-3xl font-bold">₹{(wallet?.balance || 0).toFixed(2)}</h3>
+//                 <p className="text-muted-foreground">Available Balance</p>
+//               </div>
+
+//               <div className="space-y-4">
+//                 <h3 className="text-lg font-medium">Add Funds to Wallet</h3>
+//                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//                   <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("10")}>
+//                     ₹10
+//                   </Button>
+//                   <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("25")}>
+//                     ₹25
+//                   </Button>
+//                   <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("50")}>
+//                     ₹50
+//                   </Button>
+//                   <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("100")}>
+//                     ₹100
+//                   </Button>
+//                   <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("200")}>
+//                     ₹200
+//                   </Button>
+//                   <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("500")}>
+//                     ₹500
+//                   </Button>
+//                 </div>
+
+//                 <div className="flex flex-col md:flex-row gap-4">
+//                   <div className="flex-1">
+//                     <Label htmlFor="custom-amount">Custom Amount</Label>
+//                     <div className="relative mt-1">
+//                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">₹</span>
+//                       <Input
+//                         id="custom-amount"
+//                         type="number"
+//                         min="1"
+//                         step="0.01"
+//                         placeholder="Enter amount"
+//                         value={amount}
+//                         onChange={(e) => setAmount(e.target.value)}
+//                         className="pl-7"
+//                       />
+//                     </div>
+//                   </div>
+//                   <Button
+//                     onClick={handleAddFunds}
+//                     className="bg-primary hover:bg-primary/90 mt-auto h-10"
+//                     disabled={
+//                       isAdding || !amount || isNaN(Number.parseFloat(amount)) || Number.parseFloat(amount) <= 0
+//                     }
+//                   >
+//                     <PlusCircle className="mr-2 h-4 w-4" />
+//                     {isAdding ? "Adding..." : "Add Funds"}
+//                   </Button>
+//                 </div>
+//               </div>
+//             </CardContent>
+//           </Card>
+
+//           <Card>
+//             <CardHeader>
+//               <CardTitle className="text-lg font-medium text-primary">Recent Transactions</CardTitle>
+//             </CardHeader>
+//             <CardContent>
+//               <div className="space-y-4">
+//                 {(wallet?.transactions ).slice(0, 5).map((transaction, index) => (
+//                   <div key={transaction._id || transaction.id || index} className="flex items-center justify-between">
+//                     <div className="flex items-center gap-3">
+//                       <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+//                         {getTransactionIcon(transaction.type, transaction.status)}
+//                       </div>
+//                       <div>
+//                         <p className="font-medium">{transaction.description}</p>
+//                         <p className="text-sm text-muted-foreground">
+//                           {new Date(transaction.createdAt).toLocaleDateString()}
+//                         </p>
+//                       </div>
+//                     </div>
+//                     <div className={transaction.type === "credit" ? "text-green-600" : "text-red-600"}>
+//                       {transaction.type === "credit" ? "+" : "-"}₹{transaction.amount.toFixed(2)}
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </CardContent>
+//             <CardFooter>
+//               <Button variant="ghost" className="w-full text-primary" onClick={() => setActiveTab("transactions")}>
+//                 View All Transactions
+//               </Button>
+//             </CardFooter>
+//           </Card>
+//         </TabsContent>
+
+//         <TabsContent value="transactions">
+//           <Card>
+//             <CardHeader className="flex flex-col space-y-2">
+//               <CardTitle className="text-2xl font-bold text-primary">Transaction History</CardTitle>
+//               <CardDescription>View all your wallet transactions</CardDescription>
+              
+//               <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-4">
+//                 <div className="flex items-center gap-2">
+//                   <DropdownMenu>
+//                     <DropdownMenuTrigger asChild>
+//                       <Button variant="outline" size="sm" className="flex items-center gap-1">
+//                         <FilterIcon className="h-4 w-4" />
+//                         Filter
+//                       </Button>
+//                     </DropdownMenuTrigger>
+//                     <DropdownMenuContent>
+//                       <DropdownMenuItem onClick={() => handleTypeFilter(null)}>
+//                         All Transactions
+//                       </DropdownMenuItem>
+//                       <DropdownMenuItem onClick={() => handleTypeFilter("credit")}>
+//                         Credits Only
+//                       </DropdownMenuItem>
+//                       <DropdownMenuItem onClick={() => handleTypeFilter("debit")}>
+//                         Debits Only
+//                       </DropdownMenuItem>
+//                     </DropdownMenuContent>
+//                   </DropdownMenu>
+                  
+//                   {transactionType && (
+//                     <div className="text-sm text-muted-foreground">
+//                       Filtered: {transactionType === "credit" ? "Credits" : "Debits"}
+//                       <Button 
+//                         variant="ghost" 
+//                         size="sm" 
+//                         className="h-5 w-5 ml-1 p-0" 
+//                         onClick={() => handleTypeFilter(null)}
+//                       >
+//                         ×
+//                       </Button>
+//                     </div>
+//                   )}
+//                 </div>
+                
+//                 <div className="flex items-center gap-2">
+//                   <span className="text-sm text-muted-foreground">Show</span>
+//                   <Select value={limit.toString()} onValueChange={handleLimitChange}>
+//                     <SelectTrigger className="w-20">
+//                       <SelectValue placeholder="10" />
+//                     </SelectTrigger>
+//                     <SelectContent>
+//                       <SelectItem value="5">5</SelectItem>
+//                       <SelectItem value="10">10</SelectItem>
+//                       <SelectItem value="25">25</SelectItem>
+//                       <SelectItem value="50">50</SelectItem>
+//                     </SelectContent>
+//                   </Select>
+//                   <span className="text-sm text-muted-foreground">per page</span>
+//                 </div>
+//               </div>
+//             </CardHeader>
+            
+//             <CardContent>
+//               <div className="overflow-x-auto">
+//                 <Table>
+//                   <TableHeader>
+//                     <TableRow>
+//                       <TableHead className="w-[120px]">
+//                         <div 
+//                           className="flex items-center cursor-pointer"
+//                           onClick={() => handleSortChange("orderId")}
+//                         >
+//                           Transaction ID
+//                           {sortBy === "orderId" && (
+//                             <ArrowUpDown className="ml-2 h-4 w-4" />
+//                           )}
+//                         </div>
+//                       </TableHead>
+//                       <TableHead>
+//                         <div 
+//                           className="flex items-center cursor-pointer"
+//                           onClick={() => handleSortChange("createdAt")}
+//                         >
+//                           Date
+//                           {sortBy === "createdAt" && (
+//                             <ArrowUpDown className="ml-2 h-4 w-4" />
+//                           )}
+//                         </div>
+//                       </TableHead>
+//                       <TableHead>Description</TableHead>
+//                       <TableHead>
+//                         <div 
+//                           className="flex items-center cursor-pointer"
+//                           onClick={() => handleSortChange("type")}
+//                         >
+//                           Type
+//                           {sortBy === "type" && (
+//                             <ArrowUpDown className="ml-2 h-4 w-4" />
+//                           )}
+//                         </div>
+//                       </TableHead>
+//                       <TableHead>
+//                         <div 
+//                           className="flex items-center cursor-pointer"
+//                           onClick={() => handleSortChange("status")}
+//                         >
+//                           Status
+//                           {sortBy === "status" && (
+//                             <ArrowUpDown className="ml-2 h-4 w-4" />
+//                           )}
+//                         </div>
+//                       </TableHead>
+//                       <TableHead className="text-right">
+//                         <div 
+//                           className="flex items-center justify-end cursor-pointer"
+//                           onClick={() => handleSortChange("amount")}
+//                         >
+//                           Amount
+//                           {sortBy === "amount" && (
+//                             <ArrowUpDown className="ml-2 h-4 w-4" />
+//                           )}
+//                         </div>
+//                       </TableHead>
+//                     </TableRow>
+//                   </TableHeader>
+//                   <TableBody>
+//                     {wallet?.transactions?.length === 0 ? (
+//                       <TableRow>
+//                         <TableCell colSpan={6} className="h-24 text-center">
+//                           No transactions found
+//                         </TableCell>
+//                       </TableRow>
+//                     ) : (
+//                       (wallet?.transactions || []).map((transaction, index) => (
+//                         <TableRow key={transaction._id  || index}>
+//                           <TableCell className="font-medium">{transaction?.transactionId || "N/A"}</TableCell>
+//                           <TableCell>{new Date(transaction.createdAt).toLocaleDateString()}</TableCell>
+//                           <TableCell>{transaction.description}</TableCell>
+//                           <TableCell className="capitalize">{transaction.type}</TableCell>
+//                           <TableCell>
+//                             {transaction.status === "completed" ? (
+//                               <span className="flex items-center gap-1 text-green-600">
+//                                 <CheckCircle className="h-4 w-4" />
+//                                 Completed
+//                               </span>
+//                             ) : transaction.status === "pending" ? (
+//                               <span className="flex items-center gap-1 text-amber-600">
+//                                 <Clock className="h-4 w-4" />
+//                                 Pending
+//                               </span>
+//                             ) : (
+//                               <span className="flex items-center gap-1 text-red-600">
+//                                 <AlertCircle className="h-4 w-4" />
+//                                 Failed
+//                               </span>
+//                             )}
+//                           </TableCell>
+//                           <TableCell
+//                             className={`text-right ${transaction.type === "credit" ? "text-green-600" : "text-red-600"}`}
+//                           >
+//                             {transaction.type === "credit" ? "+" : "-"}₹{transaction.amount.toFixed(2)}
+//                           </TableCell>
+//                         </TableRow>
+//                       ))
+//                     )}
+//                   </TableBody>
+//                 </Table>
+//               </div>
+              
+//               {wallet?.pagination && wallet.pagination.totalPages > 0 && (
+//                 <div className="flex items-center justify-between mt-4">
+//                   <div className="text-sm text-muted-foreground">
+//                     Showing {((page - 1) * limit) + 1}-
+//                     {Math.min(page * limit, wallet.pagination.totalTransactions)} of{" "}
+//                     {wallet.pagination.totalTransactions} transactions
+//                   </div>
+                  
+//                   <div className="flex items-center gap-2">
+//                     <Button
+//                       variant="outline"
+//                       size="sm"
+//                       onClick={handlePrevPage}
+//                       disabled={page === 1}
+//                     >
+//                       <ChevronLeft className="h-4 w-4" />
+//                       Previous
+//                     </Button>
+                    
+//                     <div className="flex items-center gap-1">
+//                       {Array.from({ length: Math.min(5, wallet.pagination.totalPages) }, (_, i) => {
+//                         // Show pages around current page
+//                         let pageNumber;
+//                         if (wallet.pagination.totalPages <= 5) {
+//                           pageNumber = i + 1;
+//                         } else if (page <= 3) {
+//                           pageNumber = i + 1;
+//                         } else if (page >= wallet.pagination.totalPages - 2) {
+//                           pageNumber = wallet.pagination.totalPages - 4 + i;
+//                         } else {
+//                           pageNumber = page - 2 + i;
+//                         }
+                        
+//                         return (
+//                           <Button
+//                             key={pageNumber}
+//                             variant={page === pageNumber ? "default" : "outline"}
+//                             size="sm"
+//                             className="w-9 h-9 p-0"
+//                             onClick={() => setPage(pageNumber)}
+//                           >
+//                             {pageNumber}
+//                           </Button>
+//                         );
+//                       })}
+//                     </div>
+                    
+//                     <Button
+//                       variant="outline"
+//                       size="sm"
+//                       onClick={handleNextPage}
+//                       disabled={page === wallet.pagination.totalPages}
+//                     >
+//                       Next
+//                       <ChevronRight className="h-4 w-4" />
+//                     </Button>
+//                   </div>
+//                 </div>
+//               )}
+//             </CardContent>
+//           </Card>
+//         </TabsContent>
+//       </Tabs>
+//     </div>
+//   );
+// };
+
+// export default WalletComponent;
+
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +492,6 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
-  ChevronsUpDown,
   ArrowUpDown,
   FilterIcon
 } from "lucide-react";
@@ -52,8 +528,6 @@ const WalletComponent = () => {
     sortOrder,
     type: transactionType
   });
-  console.log('wallet data from the backend',wallet);
-  
   
   const [addFunds, { isLoading: isAdding }] = useAddFundsMutation();
 
@@ -79,22 +553,20 @@ const WalletComponent = () => {
 
   const getTransactionIcon = (type, status) => {
     if (status === "pending") {
-      return <Clock className="h-5 w-5 text-amber-500" />;
+      return <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />;
     } else if (status === "failed") {
-      return <AlertCircle className="h-5 w-5 text-red-500" />;
+      return <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />;
     } else if (type === "credit") {
-      return <ArrowDownLeft className="h-5 w-5 text-green-500" />;
+      return <ArrowDownLeft className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />;
     } else {
-      return <ArrowUpRight className="h-5 w-5 text-red-500" />;
+      return <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />;
     }
   };
 
   const handleSortChange = (column) => {
     if (sortBy === column) {
-      // Toggle sort order if clicking the same column
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      // Set new column and default to descending
       setSortBy(column);
       setSortOrder("desc");
     }
@@ -124,57 +596,57 @@ const WalletComponent = () => {
   };
 
   if (isWalletLoading) {
-    return <div>Loading wallet...</div>;
+    return <div className="flex justify-center p-8">Loading wallet...</div>;
   }
 
   return (
-    <div className="space-y-6">
-      <Tabs defaultValue="balance" value={activeTab} onValueChange={setActiveTab}>
+    <div className="space-y-4 w-full">
+      <Tabs defaultValue="balance" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="balance">Wallet Balance</TabsTrigger>
           <TabsTrigger value="transactions">Transaction History</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="balance" className="space-y-6">
+        <TabsContent value="balance" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-primary">My Wallet</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl font-bold text-primary">My Wallet</CardTitle>
               <CardDescription>Manage your wallet balance and add funds</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex flex-col items-center justify-center py-3 bg-muted/90 rounded-lg w-80 h-55">
-                <CreditCard className="h-12 w-12 text-primary mb-4" />
-                <h3 className="text-3xl font-bold">₹{(wallet?.balance || 0).toFixed(2)}</h3>
-                <p className="text-muted-foreground">Available Balance</p>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col items-center justify-center p-4 bg-muted/90 rounded-lg">
+                <CreditCard className="h-8 w-8 sm:h-12 sm:w-12 text-primary mb-2 sm:mb-4" />
+                <h3 className="text-2xl sm:text-3xl font-bold">₹{(wallet?.balance || 0).toFixed(2)}</h3>
+                <p className="text-sm text-muted-foreground">Available Balance</p>
               </div>
 
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Add Funds to Wallet</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("10")}>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                  <Button variant="outline" className="h-14 sm:h-16 text-base sm:text-lg" onClick={() => setAmount("10")}>
                     ₹10
                   </Button>
-                  <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("25")}>
+                  <Button variant="outline" className="h-14 sm:h-16 text-base sm:text-lg" onClick={() => setAmount("25")}>
                     ₹25
                   </Button>
-                  <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("50")}>
+                  <Button variant="outline" className="h-14 sm:h-16 text-base sm:text-lg" onClick={() => setAmount("50")}>
                     ₹50
                   </Button>
-                  <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("100")}>
+                  <Button variant="outline" className="h-14 sm:h-16 text-base sm:text-lg" onClick={() => setAmount("100")}>
                     ₹100
                   </Button>
-                  <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("200")}>
+                  <Button variant="outline" className="h-14 sm:h-16 text-base sm:text-lg" onClick={() => setAmount("200")}>
                     ₹200
                   </Button>
-                  <Button variant="outline" className="h-20 text-lg" onClick={() => setAmount("500")}>
+                  <Button variant="outline" className="h-14 sm:h-16 text-base sm:text-lg" onClick={() => setAmount("500")}>
                     ₹500
                   </Button>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
-                    <Label htmlFor="custom-amount">Custom Amount</Label>
-                    <div className="relative mt-1">
+                <div className="space-y-2 sm:space-y-4">
+                  <Label htmlFor="custom-amount">Custom Amount</Label>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="relative flex-1">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">₹</span>
                       <Input
                         id="custom-amount"
@@ -187,17 +659,17 @@ const WalletComponent = () => {
                         className="pl-7"
                       />
                     </div>
+                    <Button
+                      onClick={handleAddFunds}
+                      className="bg-primary hover:bg-primary/90"
+                      disabled={
+                        isAdding || !amount || isNaN(Number.parseFloat(amount)) || Number.parseFloat(amount) <= 0
+                      }
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      {isAdding ? "Adding..." : "Add Funds"}
+                    </Button>
                   </div>
-                  <Button
-                    onClick={handleAddFunds}
-                    className="bg-primary hover:bg-primary/90 mt-auto h-10"
-                    disabled={
-                      isAdding || !amount || isNaN(Number.parseFloat(amount)) || Number.parseFloat(amount) <= 0
-                    }
-                  >
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    {isAdding ? "Adding..." : "Add Funds"}
-                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -208,25 +680,30 @@ const WalletComponent = () => {
               <CardTitle className="text-lg font-medium text-primary">Recent Transactions</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {(wallet?.transactions ).slice(0, 5).map((transaction, index) => (
+              <div className="space-y-3">
+                {(wallet?.transactions || []).slice(0, 5).map((transaction, index) => (
                   <div key={transaction._id || transaction.id || index} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
                         {getTransactionIcon(transaction.type, transaction.status)}
                       </div>
-                      <div>
-                        <p className="font-medium">{transaction.description}</p>
-                        <p className="text-sm text-muted-foreground">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm sm:text-base truncate max-w-[150px] sm:max-w-full">
+                          {transaction.description}
+                        </p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           {new Date(transaction.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
-                    <div className={transaction.type === "credit" ? "text-green-600" : "text-red-600"}>
+                    <div className={`text-sm sm:text-base ${transaction.type === "credit" ? "text-green-600" : "text-red-600"}`}>
                       {transaction.type === "credit" ? "+" : "-"}₹{transaction.amount.toFixed(2)}
                     </div>
                   </div>
                 ))}
+                {(!wallet?.transactions || wallet.transactions.length === 0) && (
+                  <div className="text-center py-4 text-muted-foreground">No transactions found</div>
+                )}
               </div>
             </CardContent>
             <CardFooter>
@@ -237,18 +714,18 @@ const WalletComponent = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="transactions">
+        <TabsContent value="transactions" className="mt-4">
           <Card>
-            <CardHeader className="flex flex-col space-y-2">
-              <CardTitle className="text-2xl font-bold text-primary">Transaction History</CardTitle>
+            <CardHeader>
+              <CardTitle className="text-xl sm:text-2xl font-bold text-primary">Transaction History</CardTitle>
               <CardDescription>View all your wallet transactions</CardDescription>
               
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-4">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row justify-between gap-3 mt-4">
+                <div className="flex items-center gap-2 flex-wrap">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="flex items-center gap-1">
-                        <FilterIcon className="h-4 w-4" />
+                      <Button variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3">
+                        <FilterIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                         Filter
                       </Button>
                     </DropdownMenuTrigger>
@@ -266,12 +743,12 @@ const WalletComponent = () => {
                   </DropdownMenu>
                   
                   {transactionType && (
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-xs sm:text-sm text-muted-foreground flex items-center">
                       Filtered: {transactionType === "credit" ? "Credits" : "Debits"}
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-5 w-5 ml-1 p-0" 
+                        className="h-5 w-5 p-0 ml-1" 
                         onClick={() => handleTypeFilter(null)}
                       >
                         ×
@@ -280,10 +757,10 @@ const WalletComponent = () => {
                   )}
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Show</span>
+                <div className="flex items-center gap-1 text-xs sm:text-sm">
+                  <span className="text-muted-foreground">Show</span>
                   <Select value={limit.toString()} onValueChange={handleLimitChange}>
-                    <SelectTrigger className="w-20">
+                    <SelectTrigger className="w-16 h-8">
                       <SelectValue placeholder="10" />
                     </SelectTrigger>
                     <SelectContent>
@@ -293,108 +770,118 @@ const WalletComponent = () => {
                       <SelectItem value="50">50</SelectItem>
                     </SelectContent>
                   </Select>
-                  <span className="text-sm text-muted-foreground">per page</span>
+                  <span className="text-muted-foreground">per page</span>
                 </div>
               </div>
             </CardHeader>
             
-            <CardContent>
+            <CardContent className="px-0 sm:px-6">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[120px]">
+                      <TableHead className="text-xs sm:text-sm">
                         <div 
                           className="flex items-center cursor-pointer"
                           onClick={() => handleSortChange("orderId")}
                         >
-                          Transaction ID
+                          ID
                           {sortBy === "orderId" && (
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
                           )}
                         </div>
                       </TableHead>
-                      <TableHead>
+                      <TableHead className="text-xs sm:text-sm">
                         <div 
                           className="flex items-center cursor-pointer"
                           onClick={() => handleSortChange("createdAt")}
                         >
                           Date
                           {sortBy === "createdAt" && (
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
                           )}
                         </div>
                       </TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>
+                      <TableHead className="hidden sm:table-cell text-xs sm:text-sm">Description</TableHead>
+                      <TableHead className="text-xs sm:text-sm">
                         <div 
                           className="flex items-center cursor-pointer"
                           onClick={() => handleSortChange("type")}
                         >
                           Type
                           {sortBy === "type" && (
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
                           )}
                         </div>
                       </TableHead>
-                      <TableHead>
+                      <TableHead className="hidden sm:table-cell text-xs sm:text-sm">
                         <div 
                           className="flex items-center cursor-pointer"
                           onClick={() => handleSortChange("status")}
                         >
                           Status
                           {sortBy === "status" && (
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
                           )}
                         </div>
                       </TableHead>
-                      <TableHead className="text-right">
+                      <TableHead className="text-right text-xs sm:text-sm">
                         <div 
                           className="flex items-center justify-end cursor-pointer"
                           onClick={() => handleSortChange("amount")}
                         >
                           Amount
                           {sortBy === "amount" && (
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
                           )}
                         </div>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {wallet?.transactions?.length === 0 ? (
+                    {!wallet?.transactions || wallet.transactions.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="h-24 text-center">
                           No transactions found
                         </TableCell>
                       </TableRow>
                     ) : (
-                      (wallet?.transactions || []).map((transaction, index) => (
-                        <TableRow key={transaction._id  || index}>
-                          <TableCell className="font-medium">{transaction?.transactionId || "N/A"}</TableCell>
-                          <TableCell>{new Date(transaction.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell>{transaction.description}</TableCell>
-                          <TableCell className="capitalize">{transaction.type}</TableCell>
-                          <TableCell>
+                      (wallet.transactions || []).map((transaction, index) => (
+                        <TableRow key={transaction._id || index}>
+                          <TableCell className="font-medium text-xs sm:text-sm py-2 sm:py-4">
+                            {(transaction?.transactionId || "N/A").substring(0, 8)}...
+                          </TableCell>
+                          <TableCell className="text-xs sm:text-sm py-2 sm:py-4">
+                            {new Date(transaction.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell text-xs sm:text-sm py-2 sm:py-4">
+                            {transaction.description}
+                          </TableCell>
+                          <TableCell className="capitalize text-xs sm:text-sm py-2 sm:py-4">
+                            {transaction.type}
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell text-xs sm:text-sm py-2 sm:py-4">
                             {transaction.status === "completed" ? (
                               <span className="flex items-center gap-1 text-green-600">
-                                <CheckCircle className="h-4 w-4" />
-                                Completed
+                                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="hidden sm:inline">Completed</span>
                               </span>
                             ) : transaction.status === "pending" ? (
                               <span className="flex items-center gap-1 text-amber-600">
-                                <Clock className="h-4 w-4" />
-                                Pending
+                                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="hidden sm:inline">Pending</span>
                               </span>
                             ) : (
                               <span className="flex items-center gap-1 text-red-600">
-                                <AlertCircle className="h-4 w-4" />
-                                Failed
+                                <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="hidden sm:inline">Failed</span>
                               </span>
                             )}
                           </TableCell>
                           <TableCell
-                            className={`text-right ${transaction.type === "credit" ? "text-green-600" : "text-red-600"}`}
+                            className={`text-right text-xs sm:text-sm py-2 sm:py-4 ${
+                              transaction.type === "credit" ? "text-green-600" : "text-red-600"
+                            }`}
                           >
                             {transaction.type === "credit" ? "+" : "-"}₹{transaction.amount.toFixed(2)}
                           </TableCell>
@@ -406,36 +893,36 @@ const WalletComponent = () => {
               </div>
               
               {wallet?.pagination && wallet.pagination.totalPages > 0 && (
-                <div className="flex items-center justify-between mt-4">
-                  <div className="text-sm text-muted-foreground">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 mt-4 px-4">
+                  <div className="text-xs sm:text-sm text-muted-foreground order-2 sm:order-1">
                     Showing {((page - 1) * limit) + 1}-
                     {Math.min(page * limit, wallet.pagination.totalTransactions)} of{" "}
-                    {wallet.pagination.totalTransactions} transactions
+                    {wallet.pagination.totalTransactions}
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 order-1 sm:order-2">
                     <Button
                       variant="outline"
                       size="sm"
+                      className="h-8 px-2 sm:h-9"
                       onClick={handlePrevPage}
                       disabled={page === 1}
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      Previous
+                      <span className="hidden sm:inline ml-1">Prev</span>
                     </Button>
                     
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, wallet.pagination.totalPages) }, (_, i) => {
-                        // Show pages around current page
+                    <div className="hidden sm:flex items-center gap-1">
+                      {Array.from({ length: Math.min(3, wallet.pagination.totalPages) }, (_, i) => {
                         let pageNumber;
-                        if (wallet.pagination.totalPages <= 5) {
+                        if (wallet.pagination.totalPages <= 3) {
                           pageNumber = i + 1;
-                        } else if (page <= 3) {
+                        } else if (page <= 2) {
                           pageNumber = i + 1;
-                        } else if (page >= wallet.pagination.totalPages - 2) {
-                          pageNumber = wallet.pagination.totalPages - 4 + i;
+                        } else if (page >= wallet.pagination.totalPages - 1) {
+                          pageNumber = wallet.pagination.totalPages - 2 + i;
                         } else {
-                          pageNumber = page - 2 + i;
+                          pageNumber = page - 1 + i;
                         }
                         
                         return (
@@ -443,7 +930,7 @@ const WalletComponent = () => {
                             key={pageNumber}
                             variant={page === pageNumber ? "default" : "outline"}
                             size="sm"
-                            className="w-9 h-9 p-0"
+                            className="w-8 h-8 p-0"
                             onClick={() => setPage(pageNumber)}
                           >
                             {pageNumber}
@@ -452,13 +939,18 @@ const WalletComponent = () => {
                       })}
                     </div>
                     
+                    <div className="sm:hidden text-xs">
+                      Page {page} of {wallet.pagination.totalPages}
+                    </div>
+                    
                     <Button
                       variant="outline"
                       size="sm"
+                      className="h-8 px-2 sm:h-9"
                       onClick={handleNextPage}
                       disabled={page === wallet.pagination.totalPages}
                     >
-                      Next
+                      <span className="hidden sm:inline mr-1">Next</span>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>

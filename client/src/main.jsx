@@ -1,5 +1,5 @@
 import React, { StrictMode } from "react";
-import { createRoot } from "react-dom/client"; // New import for React 18
+import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import App from "./App";

@@ -361,6 +361,22 @@ export const userApiSlice = userBaseApiSlice.injectEndpoints({
       }),
       providesTags: ["Coupon"],
     }),
+    getUsedCoupons: builder.query({
+      query: ({ page = 1, limit = 10, search = '' }) => ({
+        url: '/coupons/usedCoupons',
+        method: 'GET',
+        params: { page, limit, search },
+      }),
+      providesTags: ['usedCoupons'],
+    }),
+    getAllAvailableCoupons: builder.query({
+      query: ({ page = 1, limit = 10, search = '' }) => ({
+        url: '/coupons/all-available',
+        method: 'GET',
+        params: { page, limit, search },
+      }),
+      providesTags: ['allAvailableCoupons'],
+    }),
     //referral
     getReferrals: builder.query({
       query: () => ({
@@ -427,6 +443,8 @@ export const {
   useAddFundsMutation,
   useApplyCouponMutation,
   useGetAvailableCouponsQuery,
+  useGetUsedCouponsQuery,
+  useGetAllAvailableCouponsQuery,
   useGetReferralsQuery,
   useApplyReferralCodeMutation,
 } = userApiSlice;

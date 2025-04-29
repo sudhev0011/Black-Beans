@@ -3,9 +3,8 @@ const AdminWallet = require("../../models/adminWalletModel");
 const Order = require("../../models/orderModel");
 const User = require("../../models/userModel");
 const Wallet = require("../../models/walletModel");
-const {nanoid} = require('nanoid')
+const { nanoid } = require("nanoid");
 
-// Helper function to get or create admin wallet
 async function getAdminWallet() {
   let adminWallet = await AdminWallet.findOne();
   if (!adminWallet) {
@@ -15,7 +14,6 @@ async function getAdminWallet() {
   return adminWallet;
 }
 
-// Record transaction in admin wallet
 exports.recordTransaction = async ({
   type,
   amount,
@@ -56,95 +54,79 @@ exports.recordTransaction = async ({
   }
 };
 
-// Get all wallet transactions with pagination and filters
 exports.getAdminWallet = async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit = 10, 
-      sortBy = "createdAt", 
-      sortOrder = "desc", 
-      type, 
-      search 
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+      type,
+      search,
     } = req.query;
 
-    // Build query
-    const query = {};
-    if (type) query["transactions.type"] = type;
-    if (search) {
-      query.$or = [
-        { "transactions.orderId": { $regex: search, $options: "i" } },
-        { "transactions.description": { $regex: search, $options: "i" } }
-      ];
-    }
-
-    // Get wallet with filtered transactions
-    const adminWallet = await AdminWallet.findOne(query)
-      .select("transactions balance")
-      .lean();
-
+    const adminWallet = await AdminWallet.findOne().select("transactions balance").lean();
     if (!adminWallet) {
-      return res.status(404).json({ 
-        success: false,
-        message: "No transactions found",
+      return res.status(200).json({
+        success: true,
         transactions: [],
         pagination: {
           totalTransactions: 0,
           totalPages: 0,
           currentPage: 1,
-          limit: parseInt(limit)
+          limit: parseInt(limit),
         },
-        summary: getEmptySummary()
+        summary: getEmptySummary(),
       });
     }
 
-    // Sort transactions
-    let transactions = adminWallet.transactions;
-    if (sortBy && ["createdAt", "amount", "type", "status"].includes(sortBy)) {
+    // Filter transactions manually
+    let transactions = adminWallet.transactions || [];
+
+    if (type) {
+      transactions = transactions.filter((t) => t.type === type);
+    }
+
+    if (search) {
+      const regex = new RegExp(search, "i");
+      transactions = transactions.filter(
+        (t) => regex.test(t.orderId || "") || regex.test(t.description || "")
+      );
+    }
+
+    // Sort
+    if (sortBy && ["createdAt", "amount", "type", "status", "orderId"].includes(sortBy)) {
       transactions.sort((a, b) => {
-        if (sortOrder === "asc") {
-          return a[sortBy] > b[sortBy] ? 1 : -1;
-        } else {
-          return a[sortBy] < b[sortBy] ? 1 : -1;
-        }
+        const aValue = a[sortBy];
+        const bValue = b[sortBy];
+        if (sortOrder === "asc") return aValue > bValue ? 1 : -1;
+        else return aValue < bValue ? 1 : -1;
       });
     }
 
-    // Paginate
+    // Pagination
     const totalTransactions = transactions.length;
     const totalPages = Math.ceil(totalTransactions / limit);
-    const startIndex = (page - 1) * limit;
-    const endIndex = Math.min(startIndex + limit, totalTransactions);
-    transactions = transactions.slice(startIndex, endIndex);
+    const start = (page - 1) * limit;
+    const paginatedTransactions = transactions.slice(start, start + parseInt(limit));
 
-    // Populate user details for each transaction
+    // Populate user info
     const populatedTransactions = await Promise.all(
-      transactions.map(async (txn) => {
+      paginatedTransactions.map(async (txn) => {
         let user = null;
         if (txn.userId) {
-          user = await User.findById(txn.userId)
-            .select("username email")
-            .lean();
-          
-          // Get user's wallet balance
-          const userWallet = await Wallet.findOne({ user: txn.userId })
-            .select("balance")
-            .lean();
-          
-          if (user) {
-            user.walletBalance = userWallet?.balance || 0;
-          }
+          user = await User.findById(txn.userId).select("username email").lean();
+          const userWallet = await Wallet.findOne({ user: txn.userId }).select("balance").lean();
+          if (user) user.walletBalance = userWallet?.balance || 0;
         }
-
         return {
           ...txn,
           user,
-          _id: txn._id.toString()
+          _id: txn._id?.toString() || txn.transactionId, // fallback
         };
       })
     );
 
-    // Generate summary data
     const summary = await generateSummaryData();
 
     res.status(200).json({
@@ -154,44 +136,43 @@ exports.getAdminWallet = async (req, res) => {
         totalTransactions,
         totalPages,
         currentPage: parseInt(page),
-        limit: parseInt(limit)
+        limit: parseInt(limit),
       },
-      summary
+      summary,
     });
   } catch (error) {
     console.error("Error fetching admin wallet transactions:", error);
     res.status(500).json({
       success: false,
       message: "Failed to fetch transactions",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-// Get transaction details
 exports.getTransactionDetails = async (req, res) => {
   try {
     const { transactionId } = req.params;
 
     const adminWallet = await AdminWallet.findOne({
-      "transactions.transactionId": transactionId
+      "transactions.transactionId": transactionId,
     }).lean();
 
     if (!adminWallet) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Transaction not found" 
+        message: "Transaction not found",
       });
     }
 
     const transaction = adminWallet.transactions.find(
-      t => t.transactionId === transactionId
+      (t) => t.transactionId === transactionId
     );
 
     if (!transaction) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Transaction not found" 
+        message: "Transaction not found",
       });
     }
 
@@ -201,12 +182,12 @@ exports.getTransactionDetails = async (req, res) => {
       user = await User.findById(transaction.userId)
         .select("name email")
         .lean();
-      
+
       // Get user's wallet balance
       const userWallet = await Wallet.findOne({ user: transaction.userId })
         .select("balance")
         .lean();
-      
+
       if (user) {
         user.walletBalance = userWallet?.balance || 0;
       }
@@ -226,57 +207,61 @@ exports.getTransactionDetails = async (req, res) => {
         ...transaction,
         user,
         order,
-        _id: transaction._id.toString()
-      }
+        _id: transaction._id.toString(),
+      },
     });
   } catch (error) {
     console.error("Error fetching transaction details:", error);
     res.status(500).json({
       success: false,
       message: "Failed to fetch transaction details",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-// Helper function to generate summary data
 async function generateSummaryData() {
   try {
     // Get all transactions
     const adminWallet = await AdminWallet.findOne().lean();
     const transactions = adminWallet?.transactions || [];
-    
+
     // Calculate basic summary
     const totalBalance = adminWallet?.balance || 0;
     const totalTransactions = transactions.length;
-    
-    const creditTxns = transactions.filter(t => t.type === "credit");
-    const debitTxns = transactions.filter(t => t.type === "debit");
-    
+
+    const creditTxns = transactions.filter((t) => t.type === "credit");
+    const debitTxns = transactions.filter((t) => t.type === "debit");
+
     const totalCredits = creditTxns.reduce((sum, t) => sum + t.amount, 0);
     const totalDebits = debitTxns.reduce((sum, t) => sum + t.amount, 0);
     const creditCount = creditTxns.length;
     const debitCount = debitTxns.length;
-    
-    const pendingTransactions = transactions.filter(t => t.status === "pending").length;
-    
+
+    const pendingTransactions = transactions.filter(
+      (t) => t.status === "pending"
+    ).length;
+
     // Get user stats
-    const usersWithBalance = await Wallet.countDocuments({ balance: { $gt: 0 } });
-    const activeUsers = await User.countDocuments({ 
-      lastActive: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } 
+    const usersWithBalance = await Wallet.countDocuments({
+      balance: { $gt: 0 },
     });
-    
+    const activeUsers = await User.countDocuments({
+      updatedAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+    });
+
     // Calculate averages
     const averageBalance = await Wallet.aggregate([
-      { $match: { balance: { $gt: 0 } }},
-      { $group: { _id: null, avg: { $avg: "$balance" } } }
+      { $match: { balance: { $gt: 0 } } },
+      { $group: { _id: null, avg: { $avg: "$balance" } } },
     ]);
-    
+
     const averageTransaction = await AdminWallet.aggregate([
       { $unwind: "$transactions" },
-      { $group: { _id: null, avg: { $avg: "$transactions.amount" } } }
+      {$match:{"transactions.type": "debit"}},
+      { $group: { _id: null, avg: { $avg: "$transactions.amount" } } },
     ]);
-    
+
     return {
       totalBalance,
       totalCredits,
@@ -288,7 +273,7 @@ async function generateSummaryData() {
       usersWithBalance,
       activeUsers,
       averageBalance: averageBalance[0]?.avg || 0,
-      averageTransaction: averageTransaction[0]?.avg || 0
+      averageTransaction: averageTransaction[0]?.avg || 0,
     };
   } catch (error) {
     console.error("Error generating summary data:", error);
@@ -308,6 +293,6 @@ function getEmptySummary() {
     usersWithBalance: 0,
     activeUsers: 0,
     averageBalance: 0,
-    averageTransaction: 0
+    averageTransaction: 0,
   };
 }
