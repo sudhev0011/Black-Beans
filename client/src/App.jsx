@@ -57,8 +57,6 @@ import CheckoutComponent from "./components/checkoutVo/CheckoutComponent";
 import OrderConfirmationComponent from "./components/checkoutVo/OrderConfirmationComponent";
 import OrderFailureComponent from "./components/checkoutVo/OrderFailureComponent";
 import { ReferralCodePopup } from "./components/user/ReferralCouponApply";
-import SplashCursor from "./blocks/Animations/SplashCursor/SplashCursor";
-import { Meteors } from "./components/magicui/meteors";
 
 function App() {
   const dispatch = useDispatch();
@@ -126,14 +124,6 @@ function App() {
   if (isLoading) {
     return <OrganicLoading />;
   }
-  // if (true) {
-  //   return(
-  //     <div className="h-full w-full bg-black">
-  //       <SplashCursor/>
-  //       <Meteors/>
-  //     </div>
-  //   )
-  // }
 
   return (
     <div className="flex flex-col overflow-hidden bg-white">

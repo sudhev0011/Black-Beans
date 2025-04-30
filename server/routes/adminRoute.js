@@ -18,12 +18,10 @@ const {
 } = require("../controllers/admin/categoryController");
 
 const {
-  createCategoryOffer,
-  updateCategoryOffer,
-  deleteCategoryOffer,
-  createProductOffer,
-  updateProductOffer,
-  deleteProductOffer,
+  addOffer,
+  removeOffer,
+  addCategoryOffer,
+  removeCategoryOffer
 } = require("../controllers/admin/offerController");
 const authenticateWithRole = require("../middlewares/authenticateWithRole");
 const {
@@ -94,22 +92,10 @@ adminRoute.patch(
   authenticateWithRole(["admin"]),
   listCategory
 );
-adminRoute.post(
-  "/categories/offer",
-  authenticateWithRole(["admin"]),
-  createCategoryOffer
-);
 
-adminRoute.put(
-  "/categories/offer/:categoryId",
-  authenticateWithRole(["admin"]),
-  updateCategoryOffer
-);
-adminRoute.delete(
-  "/categories/offer/:categoryId",
-  authenticateWithRole(["admin"]),
-  deleteCategoryOffer
-);
+
+
+
 
 //products
 adminRoute.post(
@@ -131,6 +117,12 @@ adminRoute.put(
   upload.array("images", 4),
   editProduct
 );
+
+//offers
+adminRoute.post('/offers', authenticateWithRole(["admin"]),addOffer)
+adminRoute.delete('/offers/remove', authenticateWithRole(["admin"]),removeOffer);
+adminRoute.post('/category-offers', addCategoryOffer);
+adminRoute.delete('/category-offers/:categoryId', removeCategoryOffer);
 
 //order
 adminRoute.put(

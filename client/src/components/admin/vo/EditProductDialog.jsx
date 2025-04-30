@@ -1,6 +1,10 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { X } from "lucide-react";
-import Loader from "@/components/ui/Loader";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { X, Loader } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -8,15 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
-import { productSchema } from "@/utils/schemas";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -26,15 +22,13 @@ import {
 } from "@/components/ui/select";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import { useUpdateProductMutation } from "../../../store/api/adminApiSlice";
+import { toast } from "sonner";
+import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
+import { productSchema } from "@/utils/schemas";
 
-export default function EditProductDialog({
-  product,
-  categories,
-  onUpdate,
-  onClose,
-}) {
+export default function EditProductDialog({ product, categories, onClose }) {
   const [useVariants, setUseVariants] = useState(false);
-  const [hasOffer, setHasOffer] = useState(false);
   const [isCropDialogOpen, setIsCropDialogOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
   const [crop, setCrop] = useState({
@@ -47,11 +41,11 @@ export default function EditProductDialog({
   const [completedCrop, setCompletedCrop] = useState(null);
   const imageRef = useRef(null);
   const fileInputRef = useRef(null);
+  const [updateProduct] = useUpdateProductMutation();
 
   useEffect(() => {
     if (product) {
       setUseVariants(product.variants?.length > 0);
-      setHasOffer(!!product.offer?.isActive);
     }
   }, [product]);
 
@@ -63,17 +57,8 @@ export default function EditProductDialog({
         actualPrice: product.actualPrice || "",
         salePrice: product.salePrice || "",
         totalStock: product.totalStock || "",
-        category: product.category?._id || product.category || "",
-        categoryName: product.category?.name || product.categoryName || "",
+        category: product.category?._id || "",
         isFeatured: product.isFeatured || false,
-        hasOffer: !!product.offer?.isActive,
-        discountPercentage: product.offer?.discountPercentage || "",
-        startDate: product.offer?.startDate
-          ? new Date(product.offer.startDate).toISOString().split("T")[0]
-          : "",
-        endDate: product.offer?.endDate
-          ? new Date(product.offer.endDate).toISOString().split("T")[0]
-          : "",
         variants:
           product.variants?.map((v) => ({
             _id: v._id || "",
@@ -96,10 +81,6 @@ export default function EditProductDialog({
         totalStock: "",
         category: "",
         isFeatured: false,
-        hasOffer: false,
-        discountPercentage: "",
-        startDate: "",
-        endDate: "",
         variants: [],
         images: [],
         imagePreviews: [],
@@ -177,6 +158,18 @@ export default function EditProductDialog({
     }
   };
 
+  const handleUpdateProduct = (formData) => {
+    return toast.promise(updateProduct(formData).unwrap(), {
+      loading: "Updating product, please wait...",
+      success: (data) =>
+        `${data.product?.name || "Product"} has been updated successfully`,
+      error: (error) =>
+        `Failed to update product: ${
+          error?.data?.message || error.message || "Unknown error"
+        }`,
+    });
+  };
+
   if (!product) return null;
 
   return (
@@ -199,13 +192,6 @@ export default function EditProductDialog({
             formData.append("category", values.category);
             formData.append("isFeatured", values.isFeatured);
 
-            formData.append("hasOffer", values.hasOffer);
-            if (values.hasOffer) {
-              formData.append("discountPercentage", Number(values.discountPercentage));
-              formData.append("startDate", values.startDate);
-              formData.append("endDate", values.endDate);
-            }
-
             if (!useVariants) {
               formData.append("actualPrice", Number(values.actualPrice) || 0);
               if (values.salePrice)
@@ -226,7 +212,7 @@ export default function EditProductDialog({
             values.images.forEach((image) => formData.append("images", image));
 
             try {
-              await onUpdate(formData);
+              await handleUpdateProduct(formData);
               onClose();
             } catch (error) {
               console.error("Error updating product:", error);
@@ -234,6 +220,9 @@ export default function EditProductDialog({
               setSubmitting(false);
             }
           }}
+          context={{ useVariants }}
+          validateOnMount // Validate immediately on mount
+          validateOnChange // Validate on every change
         >
           {({ values, setFieldValue, isSubmitting, errors, touched }) => (
             <>
@@ -282,7 +271,6 @@ export default function EditProductDialog({
                           onValueChange={(value) =>
                             setFieldValue("category", value)
                           }
-                          defaultValue={product.categoryName}
                           value={values.category}
                         >
                           <SelectTrigger className="col-span-3">
@@ -317,84 +305,6 @@ export default function EditProductDialog({
                       className="col-span-3"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Has Offer</Label>
-                    <Field name="hasOffer">
-                      {({ field }) => (
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={(checked) => {
-                            setFieldValue("hasOffer", checked);
-                            setHasOffer(checked);
-                            if (!checked) {
-                              setFieldValue("discountPercentage", "");
-                              setFieldValue("startDate", "");
-                              setFieldValue("endDate", "");
-                            }
-                          }}
-                          className="col-span-3"
-                        />
-                      )}
-                    </Field>
-                  </div>
-                  {hasOffer && (
-                    <>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="discountPercentage" className="text-right">
-                          Discount Percentage
-                        </Label>
-                        <Field
-                          as={Input}
-                          id="discountPercentage"
-                          name="discountPercentage"
-                          type="number"
-                          min="0"
-                          max="80"
-                          step="0.01"
-                          className="col-span-3"
-                        />
-                        <ErrorMessage
-                          name="discountPercentage"
-                          component="div"
-                          className="col-span-3 text-red-500 text-sm"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="startDate" className="text-right">
-                          Start Date
-                        </Label>
-                        <Field
-                          as={Input}
-                          id="startDate"
-                          name="startDate"
-                          type="date"
-                          className="col-span-3"
-                        />
-                        <ErrorMessage
-                          name="startDate"
-                          component="div"
-                          className="col-span-3 text-red-500 text-sm"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="endDate" className="text-right">
-                          End Date
-                        </Label>
-                        <Field
-                          as={Input}
-                          id="endDate"
-                          name="endDate"
-                          type="date"
-                          className="col-span-3"
-                        />
-                        <ErrorMessage
-                          name="endDate"
-                          component="div"
-                          className="col-span-3 text-red-500 text-sm"
-                        />
-                      </div>
-                    </>
-                  )}
                 </div>
                 <div className="space-y-4">
                   {!useVariants && (
@@ -421,7 +331,7 @@ export default function EditProductDialog({
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="salePrice" className="text-right">
-                          Sale Price
+                          Sale Price (optional)
                         </Label>
                         <Field
                           as={Input}
@@ -605,11 +515,6 @@ export default function EditProductDialog({
                       ref={fileInputRef}
                       className="col-span-3"
                     />
-                    {values.imagePreviews.length === 0 && (
-                      <div className="col-span-3 text-red-500 text-sm">
-                        At least one image is required
-                      </div>
-                    )}
                   </div>
                   {values.imagePreviews.length > 0 && (
                     <div className="grid grid-cols-4 items-start gap-4">
@@ -654,10 +559,7 @@ export default function EditProductDialog({
                   </div>
                 </div>
                 <DialogFooter className="col-span-2">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting || values.imagePreviews.length === 0}
-                  >
+                  <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <Loader className="animate-spin h-5 w-5" />
                     ) : (
@@ -666,6 +568,7 @@ export default function EditProductDialog({
                   </Button>
                 </DialogFooter>
               </Form>
+
               <Dialog
                 open={isCropDialogOpen}
                 onOpenChange={setIsCropDialogOpen}

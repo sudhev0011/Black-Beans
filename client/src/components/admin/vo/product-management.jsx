@@ -1,7 +1,12 @@
 // import { useState } from "react";
 // import { Filter } from "lucide-react";
 // import { Button } from "@/components/ui/button";
-// import { useGetCategoriesQuery, useGetAdminProductsQuery, useToggleProductListingMutation } from "../../../store/api/adminApiSlice";
+// import {
+//   useGetCategoriesQuery,
+//   useGetAdminProductsQuery,
+//   useToggleProductListingMutation,
+//   useAddOfferMutation,
+// } from "../../../store/api/adminApiSlice";
 // import { toast } from "sonner";
 // import SearchBar from "./SearchBar";
 // import Filters from "./Filters";
@@ -28,9 +33,13 @@
 //   const { data: categories } = useGetCategoriesQuery({
 //     page: 0,
 //     limit: 0,
-//     search: '',
+//     search: "",
 //   });
-//   const { data: productsData, isLoading: isProductsLoading, error } = useGetAdminProductsQuery({
+//   const {
+//     data: productsData,
+//     isLoading: isProductsLoading,
+//     error,
+//   } = useGetAdminProductsQuery({
 //     page: currentPage,
 //     limit: itemsPerPage,
 //     search: searchTerm,
@@ -44,30 +53,47 @@
 //   });
 
 //   const [toggleProductListing] = useToggleProductListingMutation();
+//   const [addOffer] = useAddOfferMutation();
 
 //   const products = productsData?.products || [];
-//   const pagination = productsData?.pagination || { totalPages: 1, totalProducts: 0 };
+//   const pagination = productsData?.pagination || {
+//     totalPages: 1,
+//     totalProducts: 0,
+//   };
 
-//   const handleEditProduct = (product) => setEditProduct({
-//     _id: product._id,
-//     name: product.name,
-//     description: product.description,
-//     actualPrice: product.actualPrice || "",
-//     salePrice: product.salePrice || "",
-//     totalStock: product.totalStock || "",
-//     category: product.category._id,
-//     isFeatured: product.isFeatured || false,
-//     variants: product.variants || [],
-//     images: product.images || [],
-//   });
+//   const handleEditProduct = (product) =>
+//     setEditProduct({
+//       _id: product._id,
+//       name: product.name,
+//       description: product.description,
+//       actualPrice: product.actualPrice || "",
+//       salePrice: product.salePrice || "",
+//       totalStock: product.totalStock || "",
+//       category: product.category._id,
+//       isFeatured: product.isFeatured || false,
+//       variants: product.variants || [],
+//       images: product.images || [],
+//     });
 
 //   const handleToggleProductListing = async (id, currentStatus) => {
 //     try {
 //       await toggleProductListing(id).unwrap();
 //       toast.success("Product listing status toggled successfully!");
 //     } catch (error) {
-//       toast.error("Error toggling product: " + (error?.data?.message || error.message));
+//       toast.error(
+//         "Error toggling product: " + (error?.data?.message || error.message)
+//       );
 //     }
+//   };
+
+//   const handleAddOffer = async (offerData) => {
+//     return toast.promise(addOffer(offerData).unwrap(), {
+//       loading: "Adding offer, please wait...",
+//       success: (data) =>
+//         `Offer added successfully to ${data.product?.name || "Product"}`,
+//       error: (error) =>
+//         `Failed to add offer: ${error?.data?.message || error.message}`,
+//     });
 //   };
 
 //   return (
@@ -103,6 +129,7 @@
 //         error={error}
 //         onEdit={handleEditProduct}
 //         onToggle={handleToggleProductListing}
+//         onAddOffer={handleAddOffer}
 //       />
 //       <EditProductDialog
 //         product={editProduct}
@@ -113,10 +140,7 @@
 //   );
 // }
 
-
-
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -124,6 +148,7 @@ import {
   useGetAdminProductsQuery,
   useToggleProductListingMutation,
   useAddOfferMutation,
+  useRemoveOfferMutation,
 } from "../../../store/api/adminApiSlice";
 import { toast } from "sonner";
 import SearchBar from "./SearchBar";
@@ -157,6 +182,7 @@ export default function ProductManagement() {
     data: productsData,
     isLoading: isProductsLoading,
     error,
+    refetch,
   } = useGetAdminProductsQuery({
     page: currentPage,
     limit: itemsPerPage,
@@ -172,6 +198,7 @@ export default function ProductManagement() {
 
   const [toggleProductListing] = useToggleProductListingMutation();
   const [addOffer] = useAddOfferMutation();
+  const [removeOffer] = useRemoveOfferMutation();
 
   const products = productsData?.products || [];
   const pagination = productsData?.pagination || {
@@ -214,6 +241,18 @@ export default function ProductManagement() {
     });
   };
 
+  const handleRemoveOffer = async (productId) => {
+    console.log("product id for remove offer", productId);
+
+    return toast.promise(removeOffer(productId).unwrap(), {
+      loading: "Removing offer, please wait...",
+      success: (data) =>
+        `Offer removed successfully from ${data.product?.name || "Product"}`,
+      error: (error) =>
+        `Failed to remove offer: ${error?.data?.message || error.message}`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -225,6 +264,7 @@ export default function ProductManagement() {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           setCurrentPage={setCurrentPage}
+          refetch={refetch}
         />
         <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
           <Filter className="mr-2 h-4 w-4" /> Filters
@@ -248,6 +288,8 @@ export default function ProductManagement() {
         onEdit={handleEditProduct}
         onToggle={handleToggleProductListing}
         onAddOffer={handleAddOffer}
+        onRemoveOffer={handleRemoveOffer}
+        
       />
       <EditProductDialog
         product={editProduct}

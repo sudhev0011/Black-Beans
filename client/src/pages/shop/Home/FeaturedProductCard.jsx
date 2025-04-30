@@ -18,8 +18,8 @@ export function FeaturedProductCard({ id, title, category, imageUrl, actualPrice
           <img
             src={imageUrl[popImg] || '/placeholder.svg'}
             alt={title}
-            onMouseEnter={() => setPopImg(1)}
-            onMouseLeave={() => setPopImg(0)}
+            // onMouseEnter={() => setPopImg(1)}
+            // onMouseLeave={() => setPopImg(0)}
             className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
           />
         </div>

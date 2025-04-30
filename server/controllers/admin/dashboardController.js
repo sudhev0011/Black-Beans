@@ -73,24 +73,24 @@ exports.getStatistics = async (req, res) => {
       }
   
       const revenueData = await Order.aggregate([
-        { $match: { ...dateFilter, status: { $nin: ["cancelled", "failed", "processing"] } } },
+        { $match: { ...dateFilter, status: { $nin: ["cancelled", "failed", "processing","pending","returned"] } } },
         { $group: { _id: null, total: { $sum: "$total" } } },
       ]);
   
       const previousRevenueData = await Order.aggregate([
-        { $match: { ...previousPeriodFilter, status: { $nin: ["cancelled", "failed"] } } },
+        { $match: { ...previousPeriodFilter, status: { $nin: ["cancelled", "failed","processing","pending","returned"] } } },
         { $group: { _id: null, total: { $sum: "$total" } } },
       ]);
   
       // Get total orders
       const orderCount = await Order.countDocuments({
         ...dateFilter,
-        status: { $nin: ["cancelled", "failed"] },
+        status: { $nin: ["cancelled", "failed","processing","pending","returned","returned"] },
       });
   
       const previousOrderCount = await Order.countDocuments({
         ...previousPeriodFilter,
-        status: { $nin: ["cancelled", "failed"] },
+        status: { $nin: ["cancelled", "failed","processing","pending","returned"] },
       });
   
       const activeUsersData = await Order.aggregate([

@@ -337,6 +337,43 @@ export const adminApiSlice = adminBaseApiSlice.injectEndpoints({
       }),
       providesTags: (result, error, transactionId) => [{ type: 'Transaction', id: transactionId }],
     }),
+
+    addOffer: builder.mutation({
+      query: (offerData) => ({
+        url: '/offers',
+        method: 'POST',
+        body: offerData,
+      }),
+      invalidatesTags: ['Products', 'Offers'],
+    }),
+
+    removeOffer: builder.mutation({
+      query: ( productId ) => ({
+        url: `/offers/remove`,
+        method: 'DELETE',
+        body: { productId },
+      }),
+      invalidatesTags: ['Products', 'Offers'],
+    }),
+
+    addCategoryOffer: builder.mutation({
+      query: (offerData) => ({
+        url: '/category-offers',
+        method: 'POST',
+        body: offerData,
+      }),
+      invalidatesTags: ['Categories', 'Offers'],
+    }),
+    removeCategoryOffer: builder.mutation({
+      query: ({ categoryId }) => ({
+        url: `/category-offers/${categoryId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Categories', 'Offers'],
+    }),
+
+
+    
   }),
 });
 
@@ -380,5 +417,10 @@ export const {
   //wallet
   useGetAdminWalletQuery,
   useGetTransactionByIdQuery,
+  //offer
+  useAddOfferMutation,
+  useRemoveOfferMutation,
+  useAddCategoryOfferMutation,
+  useRemoveCategoryOfferMutation
 
 } = adminApiSlice;

@@ -41,58 +41,6 @@ const addCategory = async (req, res) => {
   }
 };
 
-// const getAllCategories = async (req, res) => {
-//   try {
-//     const page = parseInt(req.query.page) || 1;
-//     const limit = parseInt(req.query.limit) || 10;
-//     const search = req.query.search || '';
-
-//     const query = {
-//       name: { $regex: search, $options: 'i' }
-//     };
-
-//     const categories = await Category.find(query)
-//       .sort({ updatedAt: -1 })
-//       .skip((page - 1) * limit)
-//       .limit(limit)
-
-//       console.log("category data form the database",categories);
-//       // const productsCount = await Category.aggregate([
-//       //   {
-//       //     $lookup: {
-//       //       from: 'products',
-//       //       localField: '_id',
-//       //       foreignField: 'category',
-//       //       as: 'products'
-//       //     }
-//       //   },
-
-//       //   {
-//       //     $project:{
-//       //       name: 1,
-//       //       productCount: {$size: '$products'}
-//       //     }
-//       //   }
-//       // ])
-      
-//       // console.log(productsCount);
-      
-//     const totalCategories = await Category.countDocuments(query);
-
-//     res.status(200).json({
-//       categories,
-//       totalCategories,
-//       currentPage: page,
-//       totalPages: Math.ceil(totalCategories / limit),
-//     });
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to fetch categories' });
-//   }
-// };
-
-// List or Unlist
-
-
 const getAllCategories = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -130,7 +78,7 @@ const getAllCategories = async (req, res) => {
         }
       }
     ]);
-    console.log(categoriesWithCounts);
+    // console.log(categoriesWithCounts);
     
     const totalCategories = await Category.countDocuments(query);
 
@@ -145,9 +93,6 @@ const getAllCategories = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 };
-
-
-
 
 const listCategory = async (req, res) => {
   const { id: categoryId } = req.params;
