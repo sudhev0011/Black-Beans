@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { logoutAdmin, setAdminCredentials } from "../slices/adminSlice/adminSlice";
 
-const baseUrl = "http://localhost:8080/api/admin";
+const baseUrl = "https://sudhev.in/backend/api/admin";
 
 const adminBaseQuery = fetchBaseQuery({
   baseUrl,

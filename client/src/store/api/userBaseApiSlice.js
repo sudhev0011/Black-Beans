@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { logoutUser, setUserCredentials } from "../slices/userSlice/userSlice";
 import { toast } from "sonner";
-const baseUrl = "http://localhost:8080/api/users";
+const baseUrl = "https://sudhev.in/backend/api/users";
 5
 const userBaseQuery = fetchBaseQuery({
   baseUrl,

@@ -70,7 +70,7 @@ const WalletComponent = () => {
       refetch();
     } catch (error) {
       console.error("Failed to add funds:", error);
-      toast.error("Failed to add funds. Please try again.");
+      toast.error(`Failed to add funds.${error?.data?.message}.`);
     }
   };
 

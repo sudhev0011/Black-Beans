@@ -75,8 +75,15 @@ exports.addFunds = async (req, res) => {
     return res.status(400).json({ success: false, message: "Invalid amount" });
   }
 
+  if(amount > 10000){
+    return res.status(400).json({success:false, message: "Amount higher than allowed please try with lower amount"});
+  }
+
   try {
     let wallet = await Wallet.findOne({ user: req.user.id });
+    if(wallet.balance >= 80000){
+      return res.status(400).json({success:false, message: "Maximum wallet balance reached"});
+    }
     if (!wallet) {
       wallet = new Wallet({ user: req.user.id });
     }

@@ -17,7 +17,7 @@ import {
 } from "chart.js";
 import { format } from "date-fns";
 
-const API_BASE_URL = "http://localhost:8080/api/admin";
+const API_BASE_URL = "https://sudhev.in/backend/api/admin";
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
 
