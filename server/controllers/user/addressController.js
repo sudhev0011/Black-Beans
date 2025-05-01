@@ -1,5 +1,4 @@
 const Address = require('../../models/addressModel');
-const User = require('../../models/userModel');
 
 // Show all addresses for a user
 const showAddresses = async (req, res) => {

@@ -37,10 +37,6 @@ const OrderFailureComponent = () => {
         result,
         user,
         RAZORPAY_KEY_ID,
-        // verifyPayment: async (paymentData) => {
-        //   const verificationResult = await retryPayment(paymentData).unwrap();
-        //   return verificationResult;
-        // },
         verifyPayment,
         onSuccess: (orderId) => {
           navigate(`/user/checkout/order-confirmation/${orderId}`);

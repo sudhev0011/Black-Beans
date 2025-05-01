@@ -353,15 +353,23 @@ const CartComponent = () => {
                 )}
               </CardContent>
               {cart?.items?.length > 0 && (
-                <CardFooter className="justify-between p-4 border-t">
-                  <Button variant="outline" onClick={continueShopping}>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Continue Shopping
-                  </Button>
-                  <Button onClick={proceedToCheckout}>
-                    Proceed to Checkout
-                  </Button>
-                </CardFooter>
+                <CardFooter className="flex flex-col sm:flex-row gap-3 sm:justify-between items-stretch sm:items-center p-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={continueShopping}
+                  className="w-full sm:w-auto"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Continue Shopping
+                </Button>
+                <Button
+                  onClick={proceedToCheckout}
+                  className="w-full sm:w-auto"
+                >
+                  Proceed to Checkout
+                </Button>
+              </CardFooter>
+              
               )}
             </Card>
           </div>

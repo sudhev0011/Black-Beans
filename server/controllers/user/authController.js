@@ -20,71 +20,6 @@ const generateOTP = require("../../utils/otp/generateOTP");
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// const googleAuth = async (req, res) => {
-//   const { token } = req.body;
-//   console.log("Received Token from google auth:", token);
-
-//   try {
-//     const ticket = await client.verifyIdToken({
-//       idToken: token.token,
-//       audience: process.env.GOOGLE_CLIENT_ID,
-//     });
-//     const payload = ticket.getPayload();
-//     const { email, name, picture, sub: googleId } = payload;
-
-//     let user = await User.findOne({ email });
-//     if (!user) {
-//       user = await User.create({
-//         username: name,
-//         email,
-//         googleId,
-//         image_url: picture,
-//         isVerified: true,
-//       });
-//     } else if (!user.googleId) {
-//       user.googleId = googleId;
-//       await user.save();
-//     }
-
-//     if (user.isBlocked) {
-//       return res
-//         .status(403)
-//         .json({ success: false, message: "Account is blocked" });
-//     }
-
-//     const userData = { id: user._id, email: user.email, role: user.role };
-//     const accessToken = generateAccessToken(userData, "User");
-//     const refreshToken = generateRefreshToken(userData, "User");
-
-//     await RefreshToken.create({
-//       token: refreshToken,
-//       userId: user._id,
-//       expiresAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
-//     });
-
-//     setCookie("userRefreshToken", refreshToken, 15 * 24 * 60 * 60 * 1000, res);
-//     setCookie("userAccessToken", accessToken, 2 * 60 * 1000, res);
-
-//     res.json({
-//       success: true,
-//       message: "Google login successful",
-//       user: {
-//         _id: user._id,
-//         username: user.username,
-//         email: user.email,
-//         role: user.role,
-//         image_url: user.image_url,
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Google auth error:", error);
-//     res
-//       .status(401)
-//       .json({ success: false, message: "Google authentication failed" });
-//   }
-// };
-
-
 const googleAuth = async (req, res) => {
   const { token } = req.body;
   console.log("Received Token from google auth:", token);
@@ -365,56 +300,6 @@ const refreshToken = async (req, res) => {
   }
 };
 
-// User Signup
-// const signup = async (req, res) => {
-//   const { username, email, password } = req.body;
-//   if (!username?.trim() || !email?.trim() || !password?.trim()) {
-//     return res.status(400).json({
-//       success: false,
-//       message: "Username, email, and password are required",
-//     });
-//   }
-
-//   try {
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser) {
-//       return res
-//         .status(409)
-//         .json({ success: false, message: "User already exists" });
-//     }
-
-//     const securePassword = await hashPassword(password);
-//     const newUser = await User.create({
-//       username,
-//       email,
-//       password: securePassword,
-//       isVerified: false, 
-//     });
-
-//     const otp = generateOTP();
-//     await OTP.create({
-//       email,
-//       otp,
-//       type: "signup",
-//     });
-
-//     res.status(201).json({
-//       success: true,
-//       message: "User registered. Please verify your email with the OTP sent.",
-//       user: {
-//         _id: newUser._id,
-//         username: newUser.username,
-//         email: newUser.email,
-//         role: newUser.role,
-//       },
-//     });
-//   } catch (error) {
-//     console.error("User signup error:", error);
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Something went wrong", error });
-//   }
-// };
 
 const signup = async (req, res) => {
   const { username, email, password } = req.body;
@@ -483,14 +368,6 @@ const signup = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-// OTP Verification
 const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
@@ -574,7 +451,6 @@ const verifyResetOTP = async (req, res) => {
   }
 };
 
-// Resend OTP
 const resendOTP = async (req, res) => {
   const { email } = req.body;
 

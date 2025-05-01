@@ -1,6 +1,4 @@
-import { logodark } from "@/assets/category"; 
 import { logo2dark } from "@/assets/category";
-import { logo3 } from "@/assets/category";
 import { Link } from "react-router-dom";
 import { payment } from "@/assets/category";
 export function Footer() {

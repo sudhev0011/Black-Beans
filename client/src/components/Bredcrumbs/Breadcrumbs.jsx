@@ -5,12 +5,8 @@ import { useSelector } from "react-redux";
 import { Button } from "../ui/button";
 
 export default function Breadcrumbs() {
-//   const { user } = useSelector((state) => state.auth);
-//   const Admin = user?.role === "admin";
-
   const location = useLocation();
 
-  // Generate breadcrum b data based on the current path
   const pathnames = location.pathname.split("/").filter((x) => x );
   
 
@@ -52,13 +48,6 @@ export default function Breadcrumbs() {
               );
             })}
           </ol>
-          {/* {Admin && (
-            <Button variant="outline" className="outline outline-1 ">
-            <Link to="/admin" className="ml-auto">
-              Go to Admin
-            </Link>
-          </Button>
-          )} */}
         </nav>
       </div>
     </div>
