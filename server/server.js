@@ -28,6 +28,11 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  req.url = req.url.replace(/^\/backend/, '');
+  next();
+});
+
 // Routes
 app.use('/api/users', userRoute);
 app.use('/api/admin', adminRoute);

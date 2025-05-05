@@ -59,6 +59,7 @@ export default function OrderManagement() {
   const [selectedReturnItems, setSelectedReturnItems] = useState({});
   const [itemReturnAction, setItemReturnAction] = useState("");
   const [itemReturnNotes, setItemReturnNotes] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const itemsPerPage = 10;
   const { data, isLoading, error, refetch } = useGetAdminOrdersQuery({
@@ -80,6 +81,8 @@ export default function OrderManagement() {
   const totalPages = data?.pages || 1;
 
   const handleViewOrder = (order) => {
+    console.log('order detaulsajbgofawnoglnwn%%%%%%%',order);
+    
     setSelectedOrder(order);
     setNewStatus(order.status);
     setReturnAction("");
@@ -87,6 +90,12 @@ export default function OrderManagement() {
     setSelectedReturnItems({});
     setItemReturnAction("");
     setItemReturnNotes("");
+    setDialogOpen(true);
+  };
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setSelectedOrder(null);
   };
 
   const handleUpdateOrderStatus = async () => {
@@ -103,6 +112,7 @@ export default function OrderManagement() {
           updatedAt: new Date().toISOString(),
         }));
         toast.success(response.message || "Order status updated successfully!");
+        closeDialog(); // Close the dialog after successful update
       } else {
         toast.error(response.message || "Failed to update order status");
       }
@@ -121,18 +131,12 @@ export default function OrderManagement() {
         action: returnAction,
         adminNotes,
       }).unwrap();
-      setSelectedOrder({
-        ...selectedOrder,
-        returnRequest: {
-          ...selectedOrder.returnRequest,
-          status: returnAction === "approve" ? "approved" : "rejected",
-          adminNotes,
-          processedAt: new Date(),
-        },
-      });
+      
       toast.success(`Return request ${returnAction}d successfully!`);
       setReturnAction("");
       setAdminNotes("");
+      closeDialog(); // Close the dialog after processing return
+      refetch(); // Refresh order data
     } catch (err) {
       console.error("Failed to process return:", err);
       toast.error(
@@ -173,29 +177,12 @@ export default function OrderManagement() {
         adminNotes: itemReturnNotes,
       }).unwrap();
 
-      // Update the local state to reflect the changes
-      const updatedItems = selectedOrder.items.map((item) => {
-        const itemKey = `${item.productId}-${item.variantId || "noVariant"}`;
-        if (selectedReturnItems[itemKey]) {
-          return {
-            ...item,
-            returnStatus:
-              itemReturnAction === "approve" ? "approved" : "rejected",
-            returnNotes: itemReturnNotes,
-          };
-        }
-        return item;
-      });
-
-      setSelectedOrder({
-        ...selectedOrder,
-        items: updatedItems,
-      });
-
       toast.success(`Item return request ${itemReturnAction}d successfully!`);
       setSelectedReturnItems({});
       setItemReturnAction("");
       setItemReturnNotes("");
+      closeDialog(); // Close the dialog after processing item return
+      refetch(); // Refresh order data
     } catch (err) {
       console.error("Failed to process item return:", err);
       toast.error(
@@ -355,402 +342,13 @@ export default function OrderManagement() {
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleViewOrder(order)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[600px]">
-                          <DialogHeader>
-                            <DialogTitle>
-                              Order Details - {selectedOrder?.orderId}
-                            </DialogTitle>
-                            <DialogDescription>
-                              View and manage order information.
-                            </DialogDescription>
-                          </DialogHeader>
-                          {selectedOrder && (
-                            <Tabs defaultValue="details">
-                              <TabsList className="grid w-full grid-cols-5">
-                                <TabsTrigger value="details">
-                                  Details
-                                </TabsTrigger>
-                                <TabsTrigger value="items">Items</TabsTrigger>
-                                <TabsTrigger value="shipping">
-                                  Shipping
-                                </TabsTrigger>
-                                <TabsTrigger value="return">Return</TabsTrigger>
-                                <TabsTrigger
-                                  value="item-returns"
-                                  className={
-                                    hasItemReturnRequests ? "bg-yellow-100" : ""
-                                  }
-                                >
-                                  Item Returns
-                                </TabsTrigger>
-                              </TabsList>
-                              <TabsContent
-                                value="details"
-                                className="space-y-4 py-4"
-                              >
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <Label>Customer</Label>
-                                    <div className="font-medium">
-                                      {selectedOrder.user?.username}
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <Label>Date</Label>
-                                    <div className="font-medium">
-                                      {new Date(
-                                        selectedOrder.createdAt
-                                      ).toLocaleString()}
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <Label>Total</Label>
-                                    <div className="font-medium">
-                                      ₹{selectedOrder.total.toFixed(2)}
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <Label>Payment Method</Label>
-                                    <div className="font-medium">
-                                      {selectedOrder.paymentMethod}
-                                    </div>
-                                  </div>
-                                  <div className="col-span-2">
-                                    <Label>Status</Label>
-                                    <Select
-                                      value={newStatus}
-                                      onValueChange={setNewStatus}
-                                    >
-                                      <SelectTrigger>
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="pending">
-                                          Pending
-                                        </SelectItem>
-                                        <SelectItem value="processing">
-                                          Processing
-                                        </SelectItem>
-                                        <SelectItem value="shipped">
-                                          Shipped
-                                        </SelectItem>
-                                        <SelectItem value="delivered">
-                                          Delivered
-                                        </SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                </div>
-                              </TabsContent>
-                              <TabsContent value="items" className="py-4">
-                                <Table>
-                                  <TableHeader>
-                                    <TableRow>
-                                      <TableHead>Item</TableHead>
-                                      <TableHead>Price</TableHead>
-                                      <TableHead>Quantity</TableHead>
-                                      <TableHead className="text-right">
-                                        Total
-                                      </TableHead>
-                                    </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                    {selectedOrder.items.map((item) => (
-                                      <TableRow
-                                        key={`${item.productId._id}-${
-                                          item.variantId?._id || "noVariant"
-                                        }`}
-                                      >
-                                        <TableCell>
-                                          {item?.productId?.name}
-                                        </TableCell>
-                                        <TableCell>
-                                          ₹{item.price.toFixed(2)}
-                                        </TableCell>
-                                        <TableCell>{item.quantity}</TableCell>
-                                        <TableCell className="text-right">
-                                          ₹
-                                          {(item.price * item.quantity).toFixed(
-                                            2
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                    ))}
-                                  </TableBody>
-                                </Table>
-                              </TabsContent>
-                              <TabsContent value="shipping" className="py-4">
-                                <div className="space-y-4">
-                                  <div>
-                                    <Label>Shipping Address</Label>
-                                    <div className="mt-1 space-y-1">
-                                      <div>
-                                        {selectedOrder.shippingAddress.fullname}
-                                      </div>
-                                      <div>
-                                        {selectedOrder.shippingAddress.email}
-                                      </div>
-                                      <div>
-                                        {
-                                          selectedOrder.shippingAddress
-                                            .addressLine
-                                        }
-                                      </div>
-                                      <div>
-                                        {selectedOrder.shippingAddress.city},{" "}
-                                        {selectedOrder.shippingAddress.state}{" "}
-                                        {
-                                          selectedOrder.shippingAddress
-                                            .postalCode
-                                        }
-                                      </div>
-                                      <div>
-                                        {selectedOrder.shippingAddress.country}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <Label>Phone</Label>
-                                    <div>
-                                      {selectedOrder.shippingAddress.phone}
-                                    </div>
-                                  </div>
-                                </div>
-                              </TabsContent>
-                              <TabsContent value="return" className="py-4">
-                                {selectedOrder.returnRequest.status ===
-                                "none" ? (
-                                  <p>No return request for this order.</p>
-                                ) : (
-                                  <div className="space-y-4">
-                                    <div>
-                                      <Label>Return Status</Label>
-                                      <div className="font-medium capitalize">
-                                        {selectedOrder.returnRequest.status}
-                                      </div>
-                                    </div>
-                                    {selectedOrder.returnRequest.reason && (
-                                      <div>
-                                        <Label>Reason</Label>
-                                        <div>
-                                          {selectedOrder.returnRequest.reason}
-                                        </div>
-                                      </div>
-                                    )}
-                                    {selectedOrder.returnRequest.status ===
-                                      "requested" && (
-                                      <>
-                                        <div>
-                                          <Label>Action</Label>
-                                          <Select
-                                            value={returnAction}
-                                            onValueChange={setReturnAction}
-                                          >
-                                            <SelectTrigger>
-                                              <SelectValue placeholder="Select action" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              <SelectItem value="approve">
-                                                Approve
-                                              </SelectItem>
-                                              <SelectItem value="reject">
-                                                Reject
-                                              </SelectItem>
-                                            </SelectContent>
-                                          </Select>
-                                        </div>
-                                        <div>
-                                          <Label>Admin Notes</Label>
-                                          <Input
-                                            value={adminNotes}
-                                            onChange={(e) =>
-                                              setAdminNotes(e.target.value)
-                                            }
-                                            placeholder="Add notes (optional)"
-                                          />
-                                        </div>
-                                      </>
-                                    )}
-                                  </div>
-                                )}
-                              </TabsContent>
-
-                              <TabsContent
-                                value="item-returns"
-                                className="py-4"
-                              >
-                                <div className="space-y-4">
-                                  <div>
-                                    <h3 className="text-lg font-medium">
-                                      Item Return Requests
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground mb-4">
-                                      Process return requests for individual
-                                      items
-                                    </p>
-
-                                    {!selectedOrder.items.some(
-                                      (item) =>
-                                        item.returnRequest.status ===
-                                        "requested"
-                                    ) ? (
-                                      <p>
-                                        No item return requests for this order.
-                                      </p>
-                                    ) : (
-                                      <>
-                                        <Table>
-                                          <TableHeader>
-                                            <TableRow>
-                                              <TableHead className="w-12">
-                                                Select
-                                              </TableHead>
-                                              <TableHead>Item</TableHead>
-                                              <TableHead>
-                                                Return Reason
-                                              </TableHead>
-                                              <TableHead>Status</TableHead>
-                                            </TableRow>
-                                          </TableHeader>
-                                          <TableBody>
-                                            {selectedOrder.items.map((item) => {
-                                              // Generate itemKey consistently
-                                              const itemKey = `${
-                                                item?.productId?._id ||
-                                                "unknown-product"
-                                              }-${
-                                                item?.variantId?._id ||
-                                                "noVariant"
-                                              }`;
-                                              return item.returnRequest
-                                                .status === "requested" ? (
-                                                <TableRow key={itemKey}>
-                                                  <TableCell>
-                                                    <Checkbox
-                                                      checked={
-                                                        !!selectedReturnItems[
-                                                          itemKey
-                                                        ]
-                                                      } // Ensure checked reflects state
-                                                      onCheckedChange={() =>
-                                                        handleItemReturnToggle(
-                                                          itemKey
-                                                        )
-                                                      }
-                                                    />
-                                                  </TableCell>
-                                                  <TableCell>
-                                                    {item?.productId?.name ||
-                                                      "Unknown Product"}
-                                                    <div className="text-sm text-muted-foreground">
-                                                      Qty: {item.quantity} × ₹
-                                                      {item.price.toFixed(2)}
-                                                    </div>
-                                                  </TableCell>
-                                                  <TableCell>
-                                                    {item.returnRequest
-                                                      .reason ||
-                                                      "Not specified"}
-                                                  </TableCell>
-                                                  <TableCell>
-                                                    <span
-                                                      className={`inline-block px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800`}
-                                                    >
-                                                      Requested
-                                                    </span>
-                                                  </TableCell>
-                                                </TableRow>
-                                              ) : null;
-                                            })}
-                                          </TableBody>
-                                        </Table>
-
-                                        <div className="mt-6 space-y-4">
-                                          <div>
-                                            <Label>
-                                              Action for Selected Items
-                                            </Label>
-                                            <Select
-                                              value={itemReturnAction}
-                                              onValueChange={
-                                                setItemReturnAction
-                                              }
-                                            >
-                                              <SelectTrigger>
-                                                <SelectValue placeholder="Select action" />
-                                              </SelectTrigger>
-                                              <SelectContent>
-                                                <SelectItem value="approve">
-                                                  Approve Return
-                                                </SelectItem>
-                                                <SelectItem value="reject">
-                                                  Reject Return
-                                                </SelectItem>
-                                              </SelectContent>
-                                            </Select>
-                                          </div>
-
-                                          <div>
-                                            <Label>Admin Notes</Label>
-                                            <Textarea
-                                              value={itemReturnNotes}
-                                              onChange={(e) =>
-                                                setItemReturnNotes(
-                                                  e.target.value
-                                                )
-                                              }
-                                              placeholder="Add notes about this return decision (optional)"
-                                              rows={3}
-                                            />
-                                          </div>
-                                        </div>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              </TabsContent>
-                            </Tabs>
-                          )}
-                          <DialogFooter>
-                            <Button
-                              variant="outline"
-                              onClick={() => setSelectedOrder(null)}
-                            >
-                              Close
-                            </Button>
-                            {selectedOrder?.status !== newStatus && (
-                              <Button onClick={handleUpdateOrderStatus}>
-                                Update Status
-                              </Button>
-                            )}
-                            {selectedOrder?.returnRequest.status ===
-                              "requested" &&
-                              returnAction && (
-                                <Button onClick={handleProcessReturn}>
-                                  Process Return
-                                </Button>
-                              )}
-                            {Object.keys(selectedReturnItems).some(
-                              (key) => selectedReturnItems[key]
-                            ) &&
-                              itemReturnAction && (
-                                <Button onClick={handleProcessItemReturn}>
-                                  Process Item Returns
-                                </Button>
-                              )}
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleViewOrder(order)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -790,6 +388,392 @@ export default function OrderManagement() {
           </div>
         </>
       )}
+
+      {/* Dialog moved outside of the table for better control */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>
+              Order Details - {selectedOrder?.orderId}
+            </DialogTitle>
+            <DialogDescription>
+              View and manage order information.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedOrder && (
+            <Tabs defaultValue="details">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="details">
+                  Details
+                </TabsTrigger>
+                <TabsTrigger value="items">Items</TabsTrigger>
+                <TabsTrigger value="shipping">
+                  Shipping
+                </TabsTrigger>
+                <TabsTrigger value="return">Return</TabsTrigger>
+                <TabsTrigger
+                  value="item-returns"
+                  className={
+                    hasItemReturnRequests ? "bg-yellow-100" : ""
+                  }
+                >
+                  Item Returns
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent
+                value="details"
+                className="space-y-4 py-4"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Customer</Label>
+                    <div className="font-medium">
+                      {selectedOrder.user?.username}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Date</Label>
+                    <div className="font-medium">
+                      {new Date(
+                        selectedOrder.createdAt
+                      ).toLocaleString()}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Total</Label>
+                    <div className="font-medium">
+                      ₹{selectedOrder.total.toFixed(2)}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Payment Method</Label>
+                    <div className="font-medium">
+                      {selectedOrder.paymentMethod}
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <Label>Status</Label>
+                    <Select
+                      value={newStatus}
+                      onValueChange={setNewStatus}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">
+                          Pending
+                        </SelectItem>
+                        <SelectItem value="processing">
+                          Processing
+                        </SelectItem>
+                        <SelectItem value="shipped">
+                          Shipped
+                        </SelectItem>
+                        <SelectItem value="delivered">
+                          Delivered
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="items" className="py-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Item</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Quantity</TableHead>
+                      <TableHead className="text-right">
+                        Total
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedOrder.items.map((item) => (
+                      <TableRow
+                        key={`${item.productId._id}-${
+                          item.variantId?._id || "noVariant"
+                        }`}
+                      >
+                        <TableCell>
+                          {item?.productId?.name}
+                        </TableCell>
+                        <TableCell>
+                          ₹{item.price.toFixed(2)}
+                        </TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell className="text-right">
+                          ₹
+                          {(item.price * item.quantity).toFixed(
+                            2
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+              <TabsContent value="shipping" className="py-4">
+                <div className="space-y-4">
+                  <div>
+                    <Label>Shipping Address</Label>
+                    <div className="mt-1 space-y-1">
+                      <div>
+                        {selectedOrder.shippingAddress.fullname}
+                      </div>
+                      <div>
+                        {selectedOrder.shippingAddress.email}
+                      </div>
+                      <div>
+                        {
+                          selectedOrder.shippingAddress
+                            .addressLine
+                        }
+                      </div>
+                      <div>
+                        {selectedOrder.shippingAddress.city},{" "}
+                        {selectedOrder.shippingAddress.state}{" "}
+                        {
+                          selectedOrder.shippingAddress
+                            .postalCode
+                        }
+                      </div>
+                      <div>
+                        {selectedOrder.shippingAddress.country}
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Phone</Label>
+                    <div>
+                      {selectedOrder.shippingAddress.phone}
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="return" className="py-4">
+                {selectedOrder.returnRequest.status ===
+                "none" ? (
+                  <p>No return request for this order.</p>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Return Status</Label>
+                      <div className="font-medium capitalize">
+                        {selectedOrder.returnRequest.status}
+                      </div>
+                    </div>
+                    {selectedOrder.returnRequest.reason && (
+                      <div>
+                        <Label>Reason</Label>
+                        <div>
+                          {selectedOrder.returnRequest.reason}
+                        </div>
+                      </div>
+                    )}
+                    {selectedOrder.returnRequest.status ===
+                      "requested" && (
+                      <>
+                        <div>
+                          <Label>Action</Label>
+                          <Select
+                            value={returnAction}
+                            onValueChange={setReturnAction}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select action" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="approve">
+                                Approve
+                              </SelectItem>
+                              <SelectItem value="reject">
+                                Reject
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>Admin Notes</Label>
+                          <Input
+                            value={adminNotes}
+                            onChange={(e) =>
+                              setAdminNotes(e.target.value)
+                            }
+                            placeholder="Add notes (optional)"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent
+                value="item-returns"
+                className="py-4"
+              >
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-medium">
+                      Item Return Requests
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Process return requests for individual
+                      items
+                    </p>
+
+                    {!selectedOrder.items.some(
+                      (item) =>
+                        item.returnRequest.status === "requested"
+                    ) ? (
+                      <p>
+                        No item return requests for this order.
+                      </p>
+                    ) : (
+                      <>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="w-12">
+                                Select
+                              </TableHead>
+                              <TableHead>Item</TableHead>
+                              <TableHead>
+                                Return Reason
+                              </TableHead>
+                              <TableHead>Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {selectedOrder.items.map((item) => {
+                              // Generate itemKey consistently
+                              const itemKey = `${
+                                item?.productId?._id ||
+                                "unknown-product"
+                              }-${
+                                item?.variantId?._id ||
+                                "noVariant"
+                              }`;
+                              return item.returnRequest.status === "requested" ? (
+                                <TableRow key={itemKey}>
+                                  <TableCell>
+                                    <Checkbox
+                                      checked={
+                                        !!selectedReturnItems[
+                                          itemKey
+                                        ]
+                                      } // Ensure checked reflects state
+                                      onCheckedChange={() =>
+                                        handleItemReturnToggle(
+                                          itemKey
+                                        )
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    {item?.productId?.name ||
+                                      "Unknown Product"}
+                                    <div className="text-sm text-muted-foreground">
+                                      Qty: {item.quantity} × ₹
+                                      {item.price.toFixed(2)}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    {item.returnRequest?.reason ||
+                                      "Not specified"}
+                                  </TableCell>
+                                  <TableCell>
+                                    <span
+                                      className={`inline-block px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800`}
+                                    >
+                                      Requested
+                                    </span>
+                                  </TableCell>
+                                </TableRow>
+                              ) : null;
+                            })}
+                          </TableBody>
+                        </Table>
+
+                        <div className="mt-6 space-y-4">
+                          <div>
+                            <Label>
+                              Action for Selected Items
+                            </Label>
+                            <Select
+                              value={itemReturnAction}
+                              onValueChange={
+                                setItemReturnAction
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select action" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="approve">
+                                  Approve Return
+                                </SelectItem>
+                                <SelectItem value="reject">
+                                  Reject Return
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div>
+                            <Label>Admin Notes</Label>
+                            <Textarea
+                              value={itemReturnNotes}
+                              onChange={(e) =>
+                                setItemReturnNotes(
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Add notes about this return decision (optional)"
+                              rows={3}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={closeDialog}
+            >
+              Close
+            </Button>
+            {selectedOrder?.status !== newStatus && (
+              <Button onClick={handleUpdateOrderStatus}>
+                Update Status
+              </Button>
+            )}
+            {selectedOrder?.returnRequest?.status ===
+              "requested" &&
+              returnAction && (
+                <Button onClick={handleProcessReturn}>
+                  Process Return
+                </Button>
+              )}
+            {Object.keys(selectedReturnItems).some(
+              (key) => selectedReturnItems[key]
+            ) &&
+              itemReturnAction && (
+                <Button onClick={handleProcessItemReturn}>
+                  Process Item Returns
+                </Button>
+              )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
