@@ -94,7 +94,7 @@ const ChangePasswordComponent = ({ onCancel, onPasswordChanged }) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       if(result.success){
-        toast.success('your pasword got updated successfully!')
+        toast.success('Your pasword got updated successfully!')
       }
       onPasswordChanged();
     } catch (error) {

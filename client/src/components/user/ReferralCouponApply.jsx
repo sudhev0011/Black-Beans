@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useApplyReferralCodeMutation } from "@/store/api/userApiSlice";
 
-export function ReferralCodePopup({ onClose }) {
+export default function ReferralCodePopup({ onClose }) {
   const [isVisible, setIsVisible] = useState(true);
   const [referralCode, setReferralCode] = useState("");
   const [applyReferralCode, { isLoading }] = useApplyReferralCodeMutation();
@@ -52,36 +52,45 @@ export function ReferralCodePopup({ onClose }) {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-80 rounded-lg border bg-card p-4 shadow-lg animate-in fade-in slide-in-from-bottom-10 duration-300 md:bottom-6 md:right-6">
+    <div className="fixed z-50 animate-in fade-in slide-in-from-bottom-10 duration-300 
+                    p-3 sm:p-4 
+                    bottom-2 sm:bottom-4 md:bottom-6 
+                    right-2 sm:right-4 md:right-6 
+                    w-full max-w-xs sm:max-w-sm 
+                    rounded-lg border bg-card shadow-lg">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Got a referral code?</h3>
+        <h3 className="text-base sm:text-lg font-semibold">Got a referral code?</h3>
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className="h-6 w-6 sm:h-8 sm:w-8"
           onClick={handleClose}
           aria-label="Close"
           disabled={isLoading}
         >
-          <X className="h-4 w-4" />
+          <X className="h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
       </div>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">
         Enter your code to get a 10% off coupon for your first purchase
       </p>
-      <form onSubmit={handleSubmit} className="mt-3 space-y-3">
+      <div className="mt-2 sm:mt-3 space-y-2 sm:space-y-3">
         <Input
           type="text"
           placeholder="Enter referral code"
           value={referralCode}
           onChange={(e) => setReferralCode(e.target.value)}
-          className="w-full"
+          className="w-full text-sm sm:text-base"
           disabled={isLoading}
         />
-        <Button type="submit" className="w-full" disabled={isLoading || !referralCode.trim()}>
+        <Button 
+          onClick={handleSubmit}
+          className="w-full text-xs sm:text-sm py-1 h-8 sm:h-10" 
+          disabled={isLoading || !referralCode.trim()}
+        >
           {isLoading ? "Applying..." : "Apply Code"}
         </Button>
-      </form>
+      </div>
     </div>
   );
 }

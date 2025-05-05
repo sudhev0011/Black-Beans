@@ -6,9 +6,10 @@ import {
   useRemoveFromWishlistMutation,
 } from '@/store/api/userApiSlice';
 import { Eye, Heart } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { useDrag } from 'react-dnd';
 import QuickView from '@/components/quickView/QuickView'
 
 const ProductCard = ({ product, id }) => {
@@ -18,7 +19,7 @@ const ProductCard = ({ product, id }) => {
 
   const [hovered, setHovered] = useState(false);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false); // State for QuickView dialog
-
+  const navigate = useNavigate();
   const wishlist = wishlistData?.items || [];
   const isInWishlist = wishlist.some((item) => item.product._id === product._id);
 
@@ -67,6 +68,7 @@ const ProductCard = ({ product, id }) => {
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate(`/shop/product/${id}`);
   };
 
   const handleQuickViewOpen = (e) => {
@@ -75,13 +77,33 @@ const ProductCard = ({ product, id }) => {
     setIsQuickViewOpen(true); 
   };
 
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'PRODUCT',
+    item: { 
+      productId: product._id,
+      variantId: product.variants.length > 0 ? product.variants[0]._id : null,
+      quantity: 1,
+      price:displayPrice
+
+    },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
+
   return (
     <>
+    <div 
+        ref={drag}
+        style={{ opacity: isDragging ? 0.5 : 1 }}
+        className={isDragging ? 'cursor-grabbing' : 'cursor-grab'}
+      >
       <Card
-        className="group overflow-hidden"
+        className ="group overflow-hidden"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={() => scrollToTop()}
+        onClick={() => scrollToTop(id)}
+        // onClick={()=>navigate(`/shop/product/${id}`)}
       >
           <div className="relative aspect-square">
             {discountPercentage > 0 && (
@@ -104,7 +126,6 @@ const ProductCard = ({ product, id }) => {
               </Badge>
             </div>
           </div>
-        <Link to={`/shop/product/${id}`} className="block">
         <CardContent className="p-4">
           <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
           <p className="text-sm text-gray-500">{product.category.name}</p>
@@ -160,8 +181,8 @@ const ProductCard = ({ product, id }) => {
             )}
           </button>
         </CardFooter>
-        </Link>
       </Card>
+      </div>
       {/* Render QuickView Component */}
       <QuickView
         product={product}

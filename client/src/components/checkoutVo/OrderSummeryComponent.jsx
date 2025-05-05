@@ -110,10 +110,10 @@ const OrderSummaryComponent = ({ cart, detailed = false, onCouponChange,   }) =>
       onCouponChange(couponData); 
       setIsOpen(false);
       sentData(response.dicount)
-      console.log("skdgfkj",response.discount);
       
     } catch (err) {
-      setError(err.data?.message || "Failed to apply coupon");
+      console.log("skdgfkj");
+      setError(err.data?.message);
     }
   };
 

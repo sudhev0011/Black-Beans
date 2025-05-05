@@ -10,7 +10,7 @@ const generateOTP = require("../../utils/otp/generateOTP");
 
 const getUserDetails = async (req, res) => {
   try {
-    const { userId } = req.params; // Get user ID from request params
+    const { userId } = req.params; 
 
     if (!userId) {
       return res.status(404).json({ success: false, message: "No userid" });
@@ -36,6 +36,7 @@ const getUserDetails = async (req, res) => {
         isVerified: user.isVerified,
         isBlocked: user.isBlocked,
         address: user.address,
+        phone: user?.phone,
       },
     });
   } catch (error) {
@@ -49,7 +50,6 @@ const getUserDetails = async (req, res) => {
 const editProfile = async (req, res) => {
   const { userId } = req.params;
   const { email, username, phone, address } = req.body;
-
   try {
     const user = await User.findById({ _id: userId });
     if (!user) {
@@ -115,15 +115,10 @@ const editProfile = async (req, res) => {
 
 const changePassword = async (req, res) => {
   const { newPassword, currentPassword } = req.body;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
-  if (!newPassword.trim() || !currentPassword.trim()) {
-    return res
-      .status(400)
-      .json({ sussess: false, message: "Missing required fields" });
-  }
   const trimmedCurrentPassword = currentPassword?.trim();
   const trimmedNewPassword = newPassword?.trim();
-  const trimmedConfirmPassword = confirmPassword?.trim();
 
   if (!trimmedCurrentPassword) {
     return res
@@ -157,16 +152,6 @@ const changePassword = async (req, res) => {
         success: false,
         message: "New password must be different from current password",
       });
-  }
-
-  if (!trimmedConfirmPassword) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Please confirm your new password" });
-  } else if (trimmedNewPassword !== trimmedConfirmPassword) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Passwords do not match" });
   }
   try {
     const user = await User.findById(req.user.id);

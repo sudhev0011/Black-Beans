@@ -10,10 +10,39 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-
+import { useState } from "react";
+import {Eye,EyeOff} from 'lucide-react'
 function Form({ formControls, formData, setFormData, onSubmit, buttonText, formType }) {
+  const [showPassword, setShowPassword] = useState(false);
+  
   function renderInputByComponentType(controlItem) {
     const value = formData[controlItem.name] || "";
+    
+    // Handle password fields with toggle functionality
+    if (controlItem.type === "password") {
+      return (
+        <div className="relative">
+          <Input
+            name={controlItem.name}
+            placeholder={controlItem.placeholder}
+            id={controlItem.name}
+            type={showPassword ? "text" : "password"}
+            value={value}
+            onChange={(e) =>
+              setFormData({ ...formData, [e.target.name]: e.target.value })
+            }
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+      );
+    }
 
     switch (controlItem.componentType) {
       case "input":

@@ -290,7 +290,7 @@ const Orders = () => {
             <p className="text-muted-foreground">
               When you place orders, they will appear here.
             </p>
-            <Button className="mt-4 bg-primary hover:bg-primary/90">
+            <Button className="mt-4 bg-primary hover:bg-primary/90" onClick={()=> navigate('/shop')}>
               Start Shopping
             </Button>
           </div>

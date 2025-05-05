@@ -105,18 +105,18 @@ const ProfileComponent = () => {
               <div className="flex-1 space-y-4">
                 <div>
                   <h3 className="text-xl font-semibold">
-                    {user?.username || "John Doe"}
+                    {user?.username || "Your name goes here"}
                   </h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-2">
                     <Mail className="h-5 w-5 text-primary flex-shrink-0" />
-                    <span className="text-sm sm:text-base break-all">{user?.email || "john.doe@example.com"}</span>
+                    <span className="text-sm sm:text-base break-all">{user?.email || "Your email goes here"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="h-5 w-5 text-primary flex-shrink-0" />
-                    <span className="text-sm sm:text-base">{user?.phone || "+1 (555) 123-4567"}</span>
+                    <span className="text-sm sm:text-base">{user?.phone || "Your phones goes here"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
@@ -126,7 +126,7 @@ const ProfileComponent = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-primary flex-shrink-0" />
-                    <span className="text-sm sm:text-base">Member since {user?.joinDate || "Jan 2022"}</span>
+                    <span className="text-sm sm:text-base">Member since {user?.joinDate || "Your joining date comes here"}</span>
                   </div>
                 </div>
               </div>

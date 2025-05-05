@@ -188,8 +188,7 @@ exports.placeOrder = async (req, res) => {
 
       await order.save();
 
-      if (paymentMethod === "wallet") {
-        wallet.balance -= total;
+      if (paymentMethod === "wallet" || paymentMethod === 'cash-on-delivery') {
         const transactionId = nanoid(10);
         wallet.transactions.push({
           transactionId,
@@ -198,7 +197,10 @@ exports.placeOrder = async (req, res) => {
           description: `Purchase: Order #${orderId}`,
           orderId,
         });
-        await wallet.save();
+        if(paymentMethod === 'wallet'){
+          wallet.balance -= total;
+          await wallet.save();
+        }
 
         await adminWalletController.recordTransaction({
           type: "credit",
@@ -875,20 +877,28 @@ exports.requestItemReturn = async (req, res) => {
         item.variantId?._id.toString() === itemId
     );
 
+    const item = order.items[itemIndex];
     if (itemIndex === -1) {
       return res.status(404).json({ message: "Item not found in order" });
     }
 
     if (
       ["cancelled", "returned", "return-requested"].includes(
-        order.items[itemIndex].status
+        item.status
       )
     ) {
       return res.status(400).json({
-        message: `Item is already ${order.items[itemIndex].status}`,
+        message: `Item is already ${item.status}`,
       });
     }
+    const lastItem = order.items.find((orderItem)=> orderItem.returnRequest.status === 'none' && orderItem._id !== item._id )
 
+    if(!lastItem){
+      return res.status(400).json({
+        message:
+          "Cannot return the last item. Use return order to return the entire order instead.",
+      });
+    }
     order.items[itemIndex].returnRequest = {
       reason,
       requestedAt: new Date(),
@@ -915,7 +925,7 @@ exports.cancelOrderItem = async (req, res) => {
     const order = await Order.findOne({ orderId, user: userId }).populate(
       "items.productId items.variantId"
     );
-    console.log("order details from the single order db return", order);
+    // console.log("order details from the single order db return", order);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });

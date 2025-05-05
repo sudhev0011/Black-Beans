@@ -79,7 +79,7 @@ const googleAuth = async (req, res) => {
     });
 
     setCookie("userRefreshToken", refreshToken, 15 * 24 * 60 * 60 * 1000, res);
-    setCookie("userAccessToken", accessToken, 2 * 60 * 1000, res);
+    setCookie("userAccessToken", accessToken, 90 * 60 * 1000, res);
 
     res.json({
       success: true,
@@ -391,6 +391,19 @@ const verifyOTP = async (req, res) => {
     }
 
     await OTP.deleteOne({ _id: otpEntry._id });
+
+    const userData = { id: user._id, email: user.email, role: user.role };
+    const accessToken = generateAccessToken(userData, "User");
+    const refreshToken = generateRefreshToken(userData, "User");
+
+    await RefreshToken.create({
+      token: refreshToken,
+      userId: user._id,
+      expiresAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+    });
+
+    setCookie("userRefreshToken", refreshToken, 15 * 24 * 60 * 60 * 1000, res);
+    setCookie("userAccessToken", accessToken, 90 * 60 * 1000, res);
 
     res.json({
       success: true,

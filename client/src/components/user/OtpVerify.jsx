@@ -1,13 +1,20 @@
 import { useState, useEffect, useRef } from "react"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, CheckCircle, AlertCircle, RefreshCw } from "lucide-react"
+import { CheckCircle, AlertCircle, RefreshCw } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useVerifyEmailChangeOTPMutation, useResendOTPMutation } from "@/store/api/userApiSlice"
 
-const OtpVerificationComponent = ({ onCancel, onVerified, verificationType = "password", email }) => {
+const OtpVerificationModal = ({ isOpen, onClose, onVerified, email }) => {
   const [verifyEmailChangeOTP, { isLoading: isVerifying }] = useVerifyEmailChangeOTPMutation()
   const [resendOTP, { isLoading: isResending }] = useResendOTPMutation()
 
@@ -20,10 +27,12 @@ const OtpVerificationComponent = ({ onCancel, onVerified, verificationType = "pa
   const inputRefs = useRef([])
 
   useEffect(() => {
-    if (inputRefs.current[0]) {
-      inputRefs.current[0].focus()
+    if (isOpen && inputRefs.current[0]) {
+      setTimeout(() => {
+        inputRefs.current[0].focus()
+      }, 100)
     }
-  }, [])
+  }, [isOpen])
 
   useEffect(() => {
     if (countdown > 0) {
@@ -64,7 +73,9 @@ const OtpVerificationComponent = ({ onCancel, onVerified, verificationType = "pa
       const result = await verifyEmailChangeOTP({ email, otp: otpValue }).unwrap()
       if (result.success) {
         setSuccess(true)
-        setTimeout(() => onVerified(otpValue), 1500)
+        setTimeout(() => {
+          onVerified(otpValue)
+        }, 1500)
       } else {
         throw new Error(result.message || "Invalid OTP")
       }
@@ -76,40 +87,36 @@ const OtpVerificationComponent = ({ onCancel, onVerified, verificationType = "pa
   }
 
   const handleResendOtp = async () => {
-    setIsResending(true)
+    setError("")
     try {
       const result = await resendOTP({ email }).unwrap()
       if (result.success) {
         setCountdown(60)
-        setError("")
       } else {
         throw new Error(result.message || "Failed to resend OTP")
       }
     } catch (err) {
       setError(err?.data?.message || "Failed to resend OTP. Please try again.")
-    } finally {
-      setIsResending(false)
+    }
+  }
+
+  const handleClose = () => {
+    if (!isSubmitting) {
+      onClose()
     }
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={onCancel} className="mr-2" disabled={isSubmitting || success}>
-            <ArrowLeft className="h-4 w-4" />
-            <span className="sr-only">Back</span>
-          </Button>
-          <CardTitle className="text-2xl font-bold text-primary">Verify OTP</CardTitle>
-        </div>
-        <CardDescription>
-          {verificationType === "password"
-            ? "Enter the 6-digit code sent to your email to confirm your password change"
-            : "Enter the 6-digit code sent to your email to verify your new email"}
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-6">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-primary">Verify OTP</DialogTitle>
+          <DialogDescription>
+            Enter the 6-digit code sent to {email} to verify your new email
+          </DialogDescription>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -121,7 +128,7 @@ const OtpVerificationComponent = ({ onCancel, onVerified, verificationType = "pa
             <Alert className="bg-green-50 border-green-200">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-600">
-                {verificationType === "password" ? "Password changed successfully!" : "Email verified successfully!"}
+                Email verified successfully!
               </AlertDescription>
             </Alert>
           )}
@@ -168,29 +175,30 @@ const OtpVerificationComponent = ({ onCancel, onVerified, verificationType = "pa
               )}
             </Button>
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting || success}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            className="bg-primary hover:bg-primary/90"
-            disabled={otp.join("").length !== 6 || isSubmitting || success}
-          >
-            {isSubmitting ? (
-              <>
-                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-                Verifying...
-              </>
-            ) : (
-              "Verify"
-            )}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+          
+          <DialogFooter className="flex justify-between sm:justify-between">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting || success}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="bg-primary hover:bg-primary/90"
+              disabled={otp.join("").length !== 6 || isSubmitting || success}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                  Verifying...
+                </>
+              ) : (
+                "Verify"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
-export default OtpVerificationComponent
+export default OtpVerificationModal

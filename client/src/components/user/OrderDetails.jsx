@@ -30,6 +30,7 @@ import {
   MapPin,
   Clock,
   CheckCircle,
+  Ban,
   AlertCircle,
   Download,
   MessageSquare,
@@ -101,7 +102,7 @@ const OrderDetails = () => {
         return <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />;
       case "returned":
         return <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />;
-      case "return-requested":
+      case "requested":
         return <RefreshCcw className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />;
       default:
         return <Package className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />;
@@ -120,7 +121,7 @@ const OrderDetails = () => {
         return "bg-red-100 text-red-800";
       case "returned":
         return "bg-purple-100 text-purple-800";
-      case "return-requested":
+      case "requested":
         return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -234,7 +235,7 @@ const OrderDetails = () => {
   );
 
   const canCancel = ["pending", "processing"].includes(order.status);
-  const canReturn = order.status === "delivered";
+  const canReturn = order.status === "delivered" && order.items.length > 1;
 
   // Order status steps for the progress tracker
   const orderStatuses = ["pending", "processing", "shipped", "delivered"];
@@ -438,13 +439,20 @@ const OrderDetails = () => {
                         <div className="font-medium text-sm sm:text-base whitespace-nowrap">₹{(item?.price * item?.quantity).toFixed(2)}</div>
                         
                         {/* Show status badge if item is cancelled or returned */}
-                        {item.status === "cancelled" || item.status === "returned" || item.status === "return-requested" ? (
+                        {item?.status === "cancelled" || item?.status === "returned" || item?.returnRequest?.status === "requested" ? (
+                          (item.status === 'cancelled' || item.status === 'returned') ? ( 
                           <Badge className={`${getStatusColor(item.status)} text-xs sm:text-sm w-full sm:w-auto text-center`}>
                             <div className="flex items-center gap-1 justify-center">
                               {getStatusIcon(item.status)}
                               <span className="capitalize">{item.status.replace("-", " ")}</span>
                             </div>
-                          </Badge>
+                          </Badge>) : (
+                            <Badge className={`${getStatusColor(item.returnRequest.status)} text-xs sm:text-sm w-full sm:w-auto text-center`}>
+                            <div className="flex items-center gap-1 justify-center">
+                              {getStatusIcon(item.returnRequest.status)}
+                              <span className="capitalize">{item.returnRequest.status.replace("-", " ")}</span>
+                            </div>
+                            </Badge>)
                         ) : (
                           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                             {/* Cancel Item Button */}

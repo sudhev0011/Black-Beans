@@ -155,7 +155,7 @@ const ReferEarnComponent = () => {
                           </Button>
                         </div>
 
-                        <div className="space-y-2">
+                        {/* <div className="space-y-2">
                           <Label htmlFor="referral-link">Your Referral Link</Label>
                           <div className="flex">
                             <Input
@@ -172,7 +172,7 @@ const ReferEarnComponent = () => {
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
-                        </div>
+                        </div> */}
                       </CardContent>
                     </Card>
                   </div>

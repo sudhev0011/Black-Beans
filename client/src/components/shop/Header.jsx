@@ -2,18 +2,23 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { useLogoutMutation, userApiSlice } from "@/store/api/userApiSlice";
+import {
+  useLogoutMutation,
+  userApiSlice,
+  useAddToCartMutation,
+} from "@/store/api/userApiSlice";
+import { addToCart } from "@/store/slices/userSlice/cartSlice";
 import { logoutUser } from "@/store/slices/userSlice/userSlice";
-import { 
-  Menu, 
-  Search, 
-  Heart, 
-  ShoppingCart, 
-  X, 
+import {
+  Menu,
+  Search,
+  Heart,
+  ShoppingCart,
+  X,
   User,
   LogOut,
-  Settings,
-  ChevronDown
+  ShoppingBag,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,26 +30,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logo2dark, mobileLogo } from "@/assets/category/index";
+import { useDrop } from "react-dnd";
 
 function HomeHeader() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const user = useSelector((state) => state.user.user);
   const cart = useSelector((state) => state.cart);
-  console.log("user data from store",user);
-  
-  console.log("cart data at header",cart);
-  
+  console.log("user data from store", user);
+
+  console.log("cart data at header", cart);
+
   const [logout, { isLoading }] = useLogoutMutation();
+  const [addToCartApi, { isLoading: isAddingToCart }] = useAddToCartMutation();
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -72,17 +79,34 @@ function HomeHeader() {
     { path: "/", label: "Home" },
     { path: "/shop", label: "Shop" },
     { path: "/about", label: "About" },
-    { path: "/contact", label: "Contact" }
+    { path: "/contact", label: "Contact" },
   ];
+
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: "PRODUCT",
+    drop: async (item) => {
+      await addToCartApi(item).unwrap();
+      dispatch(
+        addToCart({
+          productId: item.productId,
+          variantId: item.variantId,
+          price: item.price,
+        })
+      );
+      console.log("Dropped product:", item);
+      toast.success("Item added to cart!");
+    },
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+    }),
+  }));
 
   return (
     <>
       {/* Main Header */}
-      <header 
+      <header
         className={`fixed top-0 z-50 w-full transition-all duration-300 ${
-          isScrolled 
-            ? "bg-white shadow-md py-2" 
-            : "bg-transparent py-4"
+          isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-4"
         }`}
       >
         <div className="container mx-auto px-4">
@@ -90,22 +114,29 @@ function HomeHeader() {
             {/* Logo */}
             <div className="flex items-center">
               <Link to="/" className="flex items-center">
-                <img src={logo2dark} alt="Logo" className="h-8 hidden md:block" />
-                <img src={mobileLogo} alt="Mobile Logo" className="h-8 md:hidden" />
+                <img
+                  src={logo2dark}
+                  alt="Logo"
+                  className="h-8 hidden md:block"
+                />
+                <img
+                  src={mobileLogo}
+                  alt="Mobile Logo"
+                  className="h-8 md:hidden"
+                />
               </Link>
             </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               {navLinks.map((link) => (
-                <Link 
-                key={link.path}
-                to={link.path} 
-                className="rounded-full px-3 py-2 text-sm font-medium tracking-wide text-black hover:bg-gray-100 transition-colors"
-              >
-                {link.label}
-              </Link>
-              
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className="rounded-full px-3 py-2 text-sm font-medium tracking-wide text-black hover:bg-gray-100 transition-colors"
+                >
+                  {link.label}
+                </Link>
               ))}
             </nav>
 
@@ -134,20 +165,28 @@ function HomeHeader() {
               </Button>
 
               {/* Cart Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="rounded-full text-black hover:bg-gray-100 relative"
-                onClick={() => navigate("/cart")}
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {(user && cart.items.length > 0) && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-xs font-medium text-white flex items-center justify-center">
-                    {cart.items.length}
-                  </span>
-                )}
-                <span className="sr-only">Cart</span>
-              </Button>
+              <div ref={drop}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`rounded-full text-black hover:bg-gray-100 relative ${
+                    isOver ? "bg-primary/10 ring-2 ring-primary" : ""
+                  }`}
+                  onClick={() => navigate("/cart")}
+                >
+                  <ShoppingCart
+                    className={`h-5 w-5 transition-transform ${
+                      isOver ? "scale-125" : ""
+                    }`}
+                  />
+                  {user && cart.items.length > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-xs font-medium text-white flex items-center justify-center">
+                      {cart.items.length}
+                    </span>
+                  )}
+                  <span className="sr-only">Cart</span>
+                </Button>
+              </div>
 
               {/* Cart Total */}
               {user && cart.total > 0 && (
@@ -182,16 +221,19 @@ function HomeHeader() {
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate('/user/profile')}>
+                    <DropdownMenuItem onClick={() => navigate("/user/profile")}>
                       <User className="h-4 w-4 mr-2" />
                       Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/user/settings')}>
-                      <Settings className="h-4 w-4 mr-2" />
-                      Settings
+                    <DropdownMenuItem onClick={() => navigate("/user/orders")}>
+                      <ShoppingBag className="h-4 w-4 mr-2" />
+                      Orders
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      disabled={isLoading}
+                    >
                       <LogOut className="h-4 w-4 mr-2" />
                       {isLoading ? "Logging out..." : "Logout"}
                     </DropdownMenuItem>
@@ -281,7 +323,7 @@ function HomeHeader() {
                   <span className="text-sm font-medium">{link.label}</span>
                 </Link>
               ))}
-              
+
               {/* Show these only in mobile menu */}
               <Link
                 to="/search"
@@ -291,7 +333,7 @@ function HomeHeader() {
                 <Search className="h-4 w-4 mr-3" />
                 <span className="text-sm font-medium">Search</span>
               </Link>
-              
+
               <Link
                 to="/user/wishlist"
                 className="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors"
@@ -300,7 +342,7 @@ function HomeHeader() {
                 <Heart className="h-4 w-4 mr-3" />
                 <span className="text-sm font-medium">Wishlist</span>
               </Link>
-              
+
               <Link
                 to="/cart"
                 className="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors"
@@ -308,7 +350,7 @@ function HomeHeader() {
               >
                 <ShoppingCart className="h-4 w-4 mr-3" />
                 <span className="text-sm font-medium">Cart</span>
-                {(user && cart.items.length > 0) && (
+                {user && cart.items.length > 0 && (
                   <span className="ml-auto bg-primary text-white text-xs rounded-full px-2 py-0.5">
                     {cart.items.length}
                   </span>
@@ -320,8 +362,8 @@ function HomeHeader() {
           {/* Footer Actions */}
           <div className="p-4 border-t">
             {user ? (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start"
                 onClick={() => {
                   handleLogout();
@@ -333,7 +375,7 @@ function HomeHeader() {
                 {isLoading ? "Logging out..." : "Logout"}
               </Button>
             ) : (
-              <Button 
+              <Button
                 className="w-full"
                 onClick={() => {
                   navigate("/auth/login");
