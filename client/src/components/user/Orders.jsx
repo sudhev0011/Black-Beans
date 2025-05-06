@@ -342,7 +342,7 @@ const Orders = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          {order.paymentStatus === "failed" ? (
+                          {order.paymentStatus === "pending" ? (
                             <Button
                               variant="destructive"
                               size="sm"
