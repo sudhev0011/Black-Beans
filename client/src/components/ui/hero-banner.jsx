@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { background } from "@/assets/Banners";
+import { background, background2,background3 } from "@/assets/Banners";
 import { useNavigate } from "react-router-dom";
 
 const banners = [
@@ -14,14 +14,14 @@ const banners = [
   },
   {
     id: 2,
-    backgroundImage: "/src/assets/Banners/Banner-02.jpg",
+    backgroundImage: background2,
     title: "A cup of hot coffee is what\nyou need",
     subtitle: `How can you evaluate content without design? No typography, no colors, no layout, no styles, all those things that convey the important signals that beyond the mere textual, hierarchies of information, weight.`,
     textPosition: 'center', 
   },
   {
     id: 3,
-    backgroundImage: "/src/assets/Banners/Banner-03.jpg",
+    backgroundImage: background3,
     title: "Everything you need to\nknow about coffee",
     subtitle: `Settling you has separate supplied bed.Led all cottage met enabled attempt through talking delight.`,
     textPosition: 'left', 

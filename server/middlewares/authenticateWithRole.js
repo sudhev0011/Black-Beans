@@ -16,7 +16,7 @@ const authenticateWithRole = (allowedRoles) => {
         console.log('No token provided');
         return res.status(401).json({
           success: false,
-          message: 'Access denied, no token provided',
+          message: 'Please login to enjoy our services',
           code: 'TOKEN_MISSING',
         });
       }

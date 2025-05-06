@@ -174,6 +174,7 @@ const ProductDetails = ({
   hasDiscount,
   stock,
   handleAddToCart,
+  isAddingToCart,
   handleWishlist,
   isInWishlist,
   isMobile,
@@ -280,7 +281,7 @@ const ProductDetails = ({
         <Button
           className={`flex-1 bg-primary hover:bg-primary/90 ${isMobile ? "py-4 text-xs" : "py-6 text-base"}`}
           onClick={handleAddToCart}
-          disabled={stock <= 0}
+          disabled={isAddingToCart || stock <= 0}
         >
           <ShoppingCart className="mr-2 h-4 w-4" />
           Add to Cart
@@ -312,7 +313,7 @@ const QuickView = ({ product, open, onOpenChange }) => {
   const contentRef = useRef(null)
 
   // API hooks
-  const [addToCartApi] = useAddToCartMutation()
+  const [addToCartApi,{ isLoading: isAddingToCart }] = useAddToCartMutation()
   const [addToWishlist] = useAddToWishlistMutation()
   const [removeFromWishlist] = useRemoveFromWishlistMutation()
   const { data: wishlistData } = useGetWishlistQuery()
@@ -498,6 +499,7 @@ const QuickView = ({ product, open, onOpenChange }) => {
             hasDiscount={hasDiscount}
             stock={stock}
             handleAddToCart={handleAddToCart}
+            isAddingToCart={isAddingToCart}
             handleWishlist={handleWishlist}
             isInWishlist={isInWishlist}
             isMobile={isMobile}
