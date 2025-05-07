@@ -29,7 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { logo2dark, mobileLogo } from "@/assets/category/index";
+import { logo2dark } from "@/assets/category/index";
 import { useDrop } from "react-dnd";
 
 function HomeHeader() {
@@ -120,7 +120,7 @@ function HomeHeader() {
                   className="h-8 hidden md:block"
                 />
                 <img
-                  src={mobileLogo}
+                  src='/mobileLogo.png'
                   alt="Mobile Logo"
                   className="h-8 md:hidden"
                 />
@@ -275,7 +275,7 @@ function HomeHeader() {
           {/* Header & Close Button */}
           <div className="flex items-center justify-between p-4 border-b">
             <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
-              <img src={mobileLogo} alt="Logo" className="h-7" />
+              <img src='/mobileLogo.png' alt="Logo" className="h-7" />
             </Link>
             <Button
               variant="ghost"

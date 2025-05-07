@@ -1,5 +1,4 @@
 const Wallet = require("../../models/walletModel");
-const Order = require("../../models/orderModel");
 const { nanoid } = require("nanoid");
 
 exports.getWallet = async (req, res) => {
