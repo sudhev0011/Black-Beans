@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Filter } from "lucide-react";
+import { Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   useGetCategoriesQuery,
@@ -28,14 +28,32 @@ export default function ProductManagement() {
     sortOrder: "desc",
   });
   const [editProduct, setEditProduct] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const itemsPerPage = 10;
+
+  // Check viewport size on mount and when window resizes
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkIsMobile();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkIsMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   const { data: categories } = useGetCategoriesQuery({
     page: 0,
     limit: 0,
     search: "",
   });
+  
   const {
     data: productsData,
     isLoading: isProductsLoading,
@@ -112,43 +130,78 @@ export default function ProductManagement() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Product Management</h1>
-        <AddProductDialog categories={categories} />
+    <div className="space-y-4 md:space-y-6 px-2 md:px-4 py-2 md:py-6">
+      {/* Header section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Product Management</h1>
+        <div className="w-full sm:w-auto">
+          <AddProductDialog categories={categories} />
+        </div>
       </div>
-      <div className="flex flex-col md:flex-row gap-4 justify-between">
+      
+      {/* Search and filter controls */}
+      <div className="flex flex-col w-full gap-3">
         <SearchBar
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           setCurrentPage={setCurrentPage}
           refetch={refetch}
         />
-        <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
-          <Filter className="mr-2 h-4 w-4" /> Filters
-        </Button>
-      </div>
-      {showFilters && (
-        <Filters
-          filters={filters}
-          setFilters={setFilters}
-          categories={categories}
-          setCurrentPage={setCurrentPage}
-        />
-      )}
-      <ProductTable
-        products={products}
-        pagination={pagination}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        isLoading={isProductsLoading}
-        error={error}
-        onEdit={handleEditProduct}
-        onToggle={handleToggleProductListing}
-        onAddOffer={handleAddOffer}
-        onRemoveOffer={handleRemoveOffer}
         
-      />
+        <div className="flex justify-between items-center">
+          <Button 
+            variant="outline" 
+            size={isMobile ? "sm" : "default"}
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center"
+          >
+            {showFilters ? (
+              <>
+                <X className="mr-1 h-4 w-4" /> Hide Filters
+              </>
+            ) : (
+              <>
+                <Filter className="mr-1 h-4 w-4" /> Filters
+              </>
+            )}
+          </Button>
+          
+          <div className="text-sm text-gray-500">
+            {pagination.totalProducts} product{pagination.totalProducts !== 1 ? 's' : ''} found
+          </div>
+        </div>
+      </div>
+      
+      {/* Filters panel - collapsible */}
+      {showFilters && (
+        <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg shadow-sm">
+          <Filters
+            filters={filters}
+            setFilters={setFilters}
+            categories={categories}
+            setCurrentPage={setCurrentPage}
+          />
+        </div>
+      )}
+      
+      {/* Main content table */}
+      <div className="overflow-x-auto -mx-2 md:mx-0">
+        <ProductTable
+          products={products}
+          pagination={pagination}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          isLoading={isProductsLoading}
+          error={error}
+          onEdit={handleEditProduct}
+          onToggle={handleToggleProductListing}
+          onAddOffer={handleAddOffer}
+          onRemoveOffer={handleRemoveOffer}
+          isMobile={isMobile}
+        />
+      </div>
+      
+      {/* Edit product dialog */}
       <EditProductDialog
         product={editProduct}
         categories={categories}

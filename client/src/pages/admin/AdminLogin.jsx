@@ -10,7 +10,7 @@ import { loginFormControls } from '@/config';
 import { setAdminCredentials } from '@/store/slices/adminSlice/adminSlice';
 
 const initialState = { email: '', password: '' };
-const adminDemo = { email: 'sudhevsuresh@gmail.com', password: 'Sudhev123' };
+const adminDemo = { email: 'sudevsuresh@gmail.com', password: 'sfga' };
 
 function AdminLogin() {
   const [formData, setFormData] = useState(initialState);

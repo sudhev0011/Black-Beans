@@ -18,12 +18,12 @@ const ProductCard = ({ product, id }) => {
   const { data: wishlistData } = useGetWishlistQuery();
 
   const [hovered, setHovered] = useState(false);
-  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false); // State for QuickView dialog
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false); 
   const navigate = useNavigate();
   const wishlist = wishlistData?.items || [];
   const isInWishlist = wishlist.some((item) => item.product._id === product._id);
 
-  const firstVariant = product.variants.length > 0 ? product.variants[0] : null;
+  const firstVariant = product.variants.length > 0 ? product.variants.reduce((acc,curr)=> acc.salePrice > curr.salePrice ? acc : curr, 0) : null;
 
   const displayPrice = firstVariant
     ? firstVariant.salePrice ?? firstVariant.actualPrice

@@ -174,8 +174,8 @@ export default function EditProductDialog({ product, categories, onClose }) {
 
   return (
     <Dialog open={!!product} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[1100px]">
-        <DialogHeader>
+      <DialogContent className="w-[95vw] max-w-[1100px] h-[90vh] max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="mb-4">
           <DialogTitle>Edit Product</DialogTitle>
           <DialogDescription>
             Update the product details below.
@@ -221,79 +221,81 @@ export default function EditProductDialog({ product, categories, onClose }) {
             }
           }}
           context={{ useVariants }}
-          validateOnMount // Validate immediately on mount
-          validateOnChange // Validate on every change
+          validateOnMount
+          validateOnChange
         >
           {({ values, setFieldValue, isSubmitting, errors, touched }) => (
             <>
-              <Form className="grid grid-cols-2 gap-6 py-4">
+              <Form className="flex flex-col md:grid md:grid-cols-1 lg:grid-cols-2 gap-6 py-4">
                 <div className="space-y-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
+                  <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                    <Label htmlFor="name" className="sm:text-right">
                       Name
                     </Label>
                     <Field
                       as={Input}
                       id="name"
                       name="name"
-                      className="col-span-3"
+                      className="w-full sm:col-span-3"
                     />
                     <ErrorMessage
                       name="name"
                       component="div"
-                      className="col-span-3 text-red-500 text-sm"
+                      className="text-red-500 text-sm sm:col-start-2 sm:col-span-3"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="description" className="text-right">
+                  <div className="flex flex-col sm:grid sm:grid-cols-4 items-start gap-2 sm:gap-4">
+                    <Label htmlFor="description" className="sm:text-right mt-2">
                       Description
                     </Label>
                     <Field
                       as={Textarea}
                       id="description"
                       name="description"
-                      className="col-span-3"
+                      className="w-full sm:col-span-3"
                     />
                     <ErrorMessage
                       name="description"
                       component="div"
-                      className="col-span-3 text-red-500 text-sm"
+                      className="text-red-500 text-sm sm:col-start-2 sm:col-span-3"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="category" className="text-right">
+                  <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                    <Label htmlFor="category" className="sm:text-right">
                       Category
                     </Label>
-                    <Field name="category">
-                      {({ field }) => (
-                        <Select
-                          {...field}
-                          onValueChange={(value) =>
-                            setFieldValue("category", value)
-                          }
-                          value={values.category}
-                        >
-                          <SelectTrigger className="col-span-3">
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categories?.categories.map((val) => (
-                              <SelectItem key={val._id} value={val._id}>
-                                {val.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </Field>
+                    <div className="w-full sm:col-span-3">
+                      <Field name="category">
+                        {({ field }) => (
+                          <Select
+                            {...field}
+                            onValueChange={(value) =>
+                              setFieldValue("category", value)
+                            }
+                            value={values.category}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories?.categories.map((val) => (
+                                <SelectItem key={val._id} value={val._id}>
+                                  {val.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </Field>
+                    </div>
                     <ErrorMessage
                       name="category"
                       component="div"
-                      className="col-span-3 text-red-500 text-sm"
+                      className="text-red-500 text-sm sm:col-start-2 sm:col-span-3"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Use Variants</Label>
+                  <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                    <Label className="sm:text-right">Use Variants</Label>
                     <Switch
                       checked={useVariants}
                       onCheckedChange={(checked) => {
@@ -302,15 +304,15 @@ export default function EditProductDialog({ product, categories, onClose }) {
                           setFieldValue("variants", []);
                         }
                       }}
-                      className="col-span-3"
+                      className="sm:col-span-3"
                     />
                   </div>
                 </div>
                 <div className="space-y-4">
                   {!useVariants && (
                     <>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="actualPrice" className="text-right">
+                      <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                        <Label htmlFor="actualPrice" className="sm:text-right">
                           Actual Price
                         </Label>
                         <Field
@@ -321,16 +323,16 @@ export default function EditProductDialog({ product, categories, onClose }) {
                           min="0"
                           step="0.01"
                           disabled={useVariants}
-                          className="col-span-3"
+                          className="w-full sm:col-span-3"
                         />
                         <ErrorMessage
                           name="actualPrice"
                           component="div"
-                          className="col-span-3 text-red-500 text-sm"
+                          className="text-red-500 text-sm sm:col-start-2 sm:col-span-3"
                         />
                       </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="salePrice" className="text-right">
+                      <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                        <Label htmlFor="salePrice" className="sm:text-right">
                           Sale Price (optional)
                         </Label>
                         <Field
@@ -341,16 +343,16 @@ export default function EditProductDialog({ product, categories, onClose }) {
                           min="0"
                           step="0.01"
                           disabled={useVariants}
-                          className="col-span-3"
+                          className="w-full sm:col-span-3"
                         />
                         <ErrorMessage
                           name="salePrice"
                           component="div"
-                          className="col-span-3 text-red-500 text-sm"
+                          className="text-red-500 text-sm sm:col-start-2 sm:col-span-3"
                         />
                       </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="totalStock" className="text-right">
+                      <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                        <Label htmlFor="totalStock" className="sm:text-right">
                           Stock
                         </Label>
                         <Field
@@ -360,120 +362,142 @@ export default function EditProductDialog({ product, categories, onClose }) {
                           type="number"
                           min="0"
                           disabled={useVariants}
-                          className="col-span-3"
+                          className="w-full sm:col-span-3"
                         />
                         <ErrorMessage
                           name="totalStock"
                           component="div"
-                          className="col-span-3 text-red-500 text-sm"
+                          className="text-red-500 text-sm sm:col-start-2 sm:col-span-3"
                         />
                       </div>
                     </>
                   )}
                   {useVariants && (
-                    <div className="grid grid-cols-4 items-start gap-4">
-                      <Label className="text-right mt-2">Variants</Label>
-                      <div className="col-span-3 space-y-4">
+                    <div className="flex flex-col sm:grid sm:grid-cols-4 items-start gap-2 sm:gap-4">
+                      <Label className="sm:text-right mt-2">Variants</Label>
+                      <div className="w-full sm:col-span-3 space-y-4">
                         <FieldArray name="variants">
                           {({ push, remove }) => (
                             <>
                               {values.variants.map((variant, index) => (
                                 <div
                                   key={index}
-                                  className="grid grid-cols-6 gap-2 items-center"
+                                  className="flex flex-col gap-2 p-2 border rounded-md bg-gray-50"
                                 >
-                                  <Field
-                                    as={Input}
-                                    name={`variants.${index}.size`}
-                                    type="number"
-                                    placeholder="Size"
-                                    min="0"
-                                    step="0.1"
-                                    className="col-span-2"
-                                  />
-                                  <Field name={`variants.${index}.unit`}>
-                                    {({ field }) => (
-                                      <Select
-                                        {...field}
-                                        onValueChange={(value) =>
-                                          setFieldValue(
-                                            `variants.${index}.unit`,
-                                            value
-                                          )
-                                        }
-                                        value={variant.unit}
-                                      >
-                                        <SelectTrigger className="col-span-1">
-                                          <SelectValue placeholder="Unit" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="kg">kg</SelectItem>
-                                          <SelectItem value="g">g</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    )}
-                                  </Field>
-                                  <Field
-                                    as={Input}
-                                    name={`variants.${index}.actualPrice`}
-                                    type="number"
-                                    placeholder="Actual Price"
-                                    min="0"
-                                    step="0.01"
-                                    className="col-span-2"
-                                  />
-                                  <Field
-                                    as={Input}
-                                    name={`variants.${index}.salePrice`}
-                                    type="number"
-                                    placeholder="Sale Price"
-                                    min="0"
-                                    step="0.01"
-                                    className="col-span-2"
-                                  />
-                                  <Field
-                                    as={Input}
-                                    name={`variants.${index}.stock`}
-                                    type="number"
-                                    placeholder="Stock"
-                                    min="0"
-                                    className="col-span-2"
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => remove(index)}
-                                    className="col-span-1 text-red-500 hover:text-red-700"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                  <div className="col-span-6">
-                                    <ErrorMessage
-                                      name={`variants.${index}.size`}
-                                      component="span"
-                                      className="text-red-500 text-sm mr-2"
-                                    />
-                                    <ErrorMessage
-                                      name={`variants.${index}.unit`}
-                                      component="span"
-                                      className="text-red-500 text-sm mr-2"
-                                    />
-                                    <ErrorMessage
-                                      name={`variants.${index}.actualPrice`}
-                                      component="span"
-                                      className="text-red-500 text-sm mr-2"
-                                    />
-                                    <ErrorMessage
-                                      name={`variants.${index}.salePrice`}
-                                      component="span"
-                                      className="text-red-500 text-sm mr-2"
-                                    />
-                                    <ErrorMessage
-                                      name={`variants.${index}.stock`}
-                                      component="span"
-                                      className="text-red-500 text-sm"
-                                    />
+                                  <div className="flex justify-between items-center">
+                                    <span className="font-medium">Variant {index + 1}</span>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => remove(index)}
+                                      className="text-red-500 hover:text-red-700"
+                                    >
+                                      <X className="h-4 w-4" /> 
+                                    </Button>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                    <div className="col-span-1 sm:col-span-2">
+                                      <Label>Size</Label>
+                                      <div className="flex gap-2">
+                                        <Field
+                                          as={Input}
+                                          name={`variants.${index}.size`}
+                                          type="number"
+                                          placeholder="Size"
+                                          min="0"
+                                          step="0.1"
+                                          className="flex-grow"
+                                        />
+                                        <div className="w-16">
+                                          <Field name={`variants.${index}.unit`}>
+                                            {({ field }) => (
+                                              <Select
+                                                {...field}
+                                                onValueChange={(value) =>
+                                                  setFieldValue(
+                                                    `variants.${index}.unit`,
+                                                    value
+                                                  )
+                                                }
+                                                value={variant.unit}
+                                              >
+                                                <SelectTrigger>
+                                                  <SelectValue placeholder="Unit" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem value="kg">kg</SelectItem>
+                                                  <SelectItem value="g">g</SelectItem>
+                                                </SelectContent>
+                                              </Select>
+                                            )}
+                                          </Field>
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-1 text-xs">
+                                        <ErrorMessage
+                                          name={`variants.${index}.size`}
+                                          component="span"
+                                          className="text-red-500"
+                                        />
+                                        <ErrorMessage
+                                          name={`variants.${index}.unit`}
+                                          component="span"
+                                          className="text-red-500"
+                                        />
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="col-span-1">
+                                      <Label>Actual Price</Label>
+                                      <Field
+                                        as={Input}
+                                        name={`variants.${index}.actualPrice`}
+                                        type="number"
+                                        placeholder="Actual Price"
+                                        min="0"
+                                        step="0.01"
+                                      />
+                                      <ErrorMessage
+                                        name={`variants.${index}.actualPrice`}
+                                        component="div"
+                                        className="text-red-500 text-xs"
+                                      />
+                                    </div>
+                                    
+                                    <div className="col-span-1">
+                                      <Label>Sale Price</Label>
+                                      <Field
+                                        as={Input}
+                                        name={`variants.${index}.salePrice`}
+                                        type="number"
+                                        placeholder="Sale Price"
+                                        min="0"
+                                        step="0.01"
+                                      />
+                                      <ErrorMessage
+                                        name={`variants.${index}.salePrice`}
+                                        component="div"
+                                        className="text-red-500 text-xs"
+                                      />
+                                    </div>
+                                    
+                                    <div className="col-span-1">
+                                      <Label>Stock</Label>
+                                      <Field
+                                        as={Input}
+                                        name={`variants.${index}.stock`}
+                                        type="number"
+                                        placeholder="Stock"
+                                        min="0"
+                                      />
+                                      <ErrorMessage
+                                        name={`variants.${index}.stock`}
+                                        component="div"
+                                        className="text-red-500 text-xs"
+                                      />
+                                    </div>
                                   </div>
                                 </div>
                               ))}
@@ -489,6 +513,7 @@ export default function EditProductDialog({ product, categories, onClose }) {
                                   })
                                 }
                                 variant="outline"
+                                className="w-full sm:w-auto"
                               >
                                 Add Variant
                               </Button>
@@ -503,8 +528,8 @@ export default function EditProductDialog({ product, categories, onClose }) {
                       </div>
                     </div>
                   )}
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="images" className="text-right">
+                  <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                    <Label htmlFor="images" className="sm:text-right">
                       Images
                     </Label>
                     <Input
@@ -513,19 +538,19 @@ export default function EditProductDialog({ product, categories, onClose }) {
                       accept="image/*"
                       onChange={(e) => handleImageUpload(e, setFieldValue)}
                       ref={fileInputRef}
-                      className="col-span-3"
+                      className="w-full sm:col-span-3"
                     />
                   </div>
                   {values.imagePreviews.length > 0 && (
-                    <div className="grid grid-cols-4 items-start gap-4">
-                      <Label className="text-right mt-2">Image Previews</Label>
-                      <div className="col-span-3 flex flex-wrap gap-2">
+                    <div className="flex flex-col sm:grid sm:grid-cols-4 items-start gap-2 sm:gap-4">
+                      <Label className="sm:text-right mt-2">Image Previews</Label>
+                      <div className="w-full sm:col-span-3 flex flex-wrap gap-2">
                         {values.imagePreviews.map((url, index) => (
                           <div key={index} className="relative">
                             <img
                               src={url}
                               alt={`Preview ${index}`}
-                              className="w-20 h-20 object-cover rounded"
+                              className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded"
                             />
                             <Button
                               type="button"
@@ -534,17 +559,17 @@ export default function EditProductDialog({ product, categories, onClose }) {
                               onClick={() =>
                                 removeImage(index, values, setFieldValue)
                               }
-                              className="absolute top-0 right-0 text-red-500 hover:text-red-700"
+                              className="absolute top-0 right-0 text-red-500 hover:text-red-700 p-1"
                             >
-                              <X className="h-4 w-4" />
+                              <X className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Featured</Label>
+                  <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                    <Label className="sm:text-right">Featured</Label>
                     <Field name="isFeatured">
                       {({ field }) => (
                         <Switch
@@ -552,14 +577,18 @@ export default function EditProductDialog({ product, categories, onClose }) {
                           onCheckedChange={(checked) =>
                             setFieldValue("isFeatured", checked)
                           }
-                          className="col-span-3"
+                          className="sm:col-span-3"
                         />
                       )}
                     </Field>
                   </div>
                 </div>
-                <DialogFooter className="col-span-2">
-                  <Button type="submit" disabled={isSubmitting}>
+                <DialogFooter className="md:col-span-1 lg:col-span-2 pt-4 border-t">
+                  <Button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="w-full sm:w-auto"
+                  >
                     {isSubmitting ? (
                       <Loader className="animate-spin h-5 w-5" />
                     ) : (
@@ -573,7 +602,7 @@ export default function EditProductDialog({ product, categories, onClose }) {
                 open={isCropDialogOpen}
                 onOpenChange={setIsCropDialogOpen}
               >
-                <DialogContent className="sm:max-w-[400px]">
+                <DialogContent className="w-[95vw] max-w-[400px]">
                   <DialogHeader>
                     <DialogTitle>Crop Image</DialogTitle>
                     <DialogDescription>
@@ -582,18 +611,21 @@ export default function EditProductDialog({ product, categories, onClose }) {
                   </DialogHeader>
                   {currentImage && (
                     <div className="space-y-4">
-                      <ReactCrop
-                        crop={crop}
-                        onChange={(_, percentCrop) => setCrop(percentCrop)}
-                        onComplete={handleCropComplete}
-                      >
-                        <img
-                          ref={imageRef}
-                          src={currentImage}
-                          alt="Crop preview"
-                        />
-                      </ReactCrop>
-                      <div className="flex justify-end gap-2">
+                      <div className="max-w-full overflow-auto">
+                        <ReactCrop
+                          crop={crop}
+                          onChange={(_, percentCrop) => setCrop(percentCrop)}
+                          onComplete={handleCropComplete}
+                        >
+                          <img
+                            ref={imageRef}
+                            src={currentImage}
+                            alt="Crop preview"
+                            className="max-w-full"
+                          />
+                        </ReactCrop>
+                      </div>
+                      <div className="flex flex-col sm:flex-row justify-end gap-2">
                         <Button
                           variant="outline"
                           onClick={() => {
@@ -601,6 +633,7 @@ export default function EditProductDialog({ product, categories, onClose }) {
                             setCompletedCrop(null);
                             setIsCropDialogOpen(false);
                           }}
+                          className="w-full sm:w-auto"
                         >
                           Cancel
                         </Button>
@@ -609,6 +642,7 @@ export default function EditProductDialog({ product, categories, onClose }) {
                             saveCroppedImage(setFieldValue, values)
                           }
                           disabled={!completedCrop}
+                          className="w-full sm:w-auto"
                         >
                           Save Crop
                         </Button>

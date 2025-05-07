@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import {
   Plus,
   Search,
@@ -169,6 +169,447 @@ function AddCategoryOfferDialog({ category, onAddOffer, onClose }) {
   );
 }
 
+// export default function CategoryManagement() {
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+//   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+//   const [selectedCategory, setSelectedCategory] = useState(null);
+//   const [offerCategory, setOfferCategory] = useState(null);
+
+//   const debouncedSetSearch = debounce((value) => {
+//     setDebouncedSearchTerm(value);
+//     setCurrentPage(1);
+//   }, 500);
+
+//   const handleSearchChange = (e) => {
+//     setSearchTerm(e.target.value);
+//     debouncedSetSearch(e.target.value);
+//   };
+
+//   const {
+//     data: categoriesData,
+//     isLoading: isCategoriesLoading,
+//     refetch,
+//   } = useGetCategoriesQuery({
+//     page: currentPage,
+//     limit: 10,
+//     search: debouncedSearchTerm,
+//   });
+//   const categories = categoriesData?.categories || [];
+//   const totalPages = categoriesData?.totalPages || 1;
+//   console.log("category data", categories);
+
+//   const [addCategory, { isLoading: isAdding }] = useAddCategoryMutation();
+//   const [updateCategory, { isLoading: isUpdating }] =
+//     useUpdateCategoryMutation();
+//   const [toggleCategoryListing] = useToggleCategoryListingMutation();
+//   const [addCategoryOffer] = useAddCategoryOfferMutation();
+//   const [removeCategoryOffer] = useRemoveCategoryOfferMutation();
+
+//   const handleToggleCategoryListing = async (id) => {
+//     try {
+//       await toggleCategoryListing(id).unwrap();
+//       toast.success("Category listing status toggled successfully!");
+//     } catch (error) {
+//       const errorMessage =
+//         error?.data?.message || "Failed to toggle category listing";
+//       toast.error(errorMessage);
+//     }
+//   };
+
+//   const handleEditClick = (category) => {
+//     setSelectedCategory(category);
+//     setIsEditDialogOpen(true);
+//   };
+
+//   const handleAddCategoryOffer = async (offerData) => {
+//     return toast.promise(addCategoryOffer(offerData).unwrap(), {
+//       loading: "Adding offer, please wait...",
+//       success: (data) =>
+//         `Offer added successfully to ${data.category?.name || "Category"}`,
+//       error: (error) =>
+//         `Failed to add offer: ${error?.data?.message || error.message}`,
+//     });
+//   };
+
+//   const handleRemoveCategoryOffer = async (categoryId) => {
+//     return toast.promise(removeCategoryOffer({ categoryId }).unwrap(), {
+//       loading: "Removing offer, please wait...",
+//       success: (data) =>
+//         `Offer removed successfully from ${data.category?.name || "Category"}`,
+//       error: (error) =>
+//         `Failed to remove offer: ${error?.data?.message || error.message}`,
+//     });
+//   };
+
+//   return (
+//     <div className="space-y-6">
+//       <div className="flex justify-between items-center">
+//         <h1 className="text-3xl font-bold">Category Management</h1>
+//         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+//           <DialogTrigger asChild>
+//             <Button>
+//               <Plus className="mr-2 h-4 w-4" />
+//               Add Category
+//             </Button>
+//           </DialogTrigger>
+//           <DialogContent className="sm:max-w-[500px]">
+//             <DialogHeader>
+//               <DialogTitle>Add New Category</DialogTitle>
+//               <DialogDescription>
+//                 Create a new category for your products.
+//               </DialogDescription>
+//             </DialogHeader>
+//             <Formik
+//               initialValues={{ name: "", description: "" }}
+//               validationSchema={categorySchema}
+//               onSubmit={async (
+//                 values,
+//                 { setSubmitting, resetForm, setStatus }
+//               ) => {
+//                 try {
+//                   await addCategory(values).unwrap();
+//                   toast.success("Category added successfully!");
+//                   resetForm();
+//                   setIsAddDialogOpen(false);
+//                 } catch (error) {
+//                   setStatus({
+//                     error: error?.data?.message || "Failed to add category",
+//                   });
+//                 } finally {
+//                   setSubmitting(false);
+//                 }
+//               }}
+//             >
+//               {({ isSubmitting, status }) => (
+//                 <Form className="grid gap-4 py-4">
+//                   {status?.error && (
+//                     <p className="text-red-600 text-center">{status.error}</p>
+//                   )}
+//                   <div className="grid grid-cols-4 items-center gap-4">
+//                     <Label htmlFor="name" className="text-right">
+//                       Name
+//                     </Label>
+//                     <div className="col-span-3">
+//                       <Field name="name" as={Input} id="name" />
+//                       <ErrorMessage
+//                         name="name"
+//                         component="p"
+//                         className="text-red-600 text-sm"
+//                       />
+//                     </div>
+//                   </div>
+//                   <div className="grid grid-cols-4 items-center gap-4">
+//                     <Label htmlFor="description" className="text-right">
+//                       Description
+//                     </Label>
+//                     <div className="col-span-3">
+//                       <Field
+//                         name="description"
+//                         as={Textarea}
+//                         id="description"
+//                       />
+//                       <ErrorMessage
+//                         name="description"
+//                         component="p"
+//                         className="text-red-600 text-sm"
+//                       />
+//                     </div>
+//                   </div>
+//                   <div className="flex justify-end">
+//                     <Button type="submit" disabled={isSubmitting || isAdding}>
+//                       {isSubmitting || isAdding ? "Saving..." : "Save Category"}
+//                     </Button>
+//                   </div>
+//                 </Form>
+//               )}
+//             </Formik>
+//           </DialogContent>
+//         </Dialog>
+//       </div>
+
+//       <div className="flex justify-between">
+//         <div className="relative w-full md:w-64">
+//           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+//           <Input
+//             type="search"
+//             placeholder="Search categories..."
+//             className="pl-8"
+//             value={searchTerm}
+//             onChange={handleSearchChange}
+//           />
+//         </div>
+//         <Button variant="outline" onClick={refetch}>
+//           <RefreshCcw className="h-4 w-4 mr-1" />
+//           Refresh
+//         </Button>
+//       </div>
+
+//       <div className="border rounded-md">
+//         {isCategoriesLoading ? (
+//           <p>Loading categories...</p>
+//         ) : categories.length === 0 ? (
+//           <p>No categories found.</p>
+//         ) : (
+//           <>
+//             <Table>
+//               <TableHeader>
+//                 <TableRow>
+//                   <TableHead>ID</TableHead>
+//                   <TableHead>Name</TableHead>
+//                   <TableHead>Description</TableHead>
+//                   <TableHead>Products</TableHead>
+//                   <TableHead>Offer</TableHead>
+//                   <TableHead>Status</TableHead>
+//                   <TableHead className="text-right">Actions</TableHead>
+//                 </TableRow>
+//               </TableHeader>
+//               <TableBody>
+//                 {categories.map((category) => (
+//                   <TableRow key={category._id}>
+//                     <TableCell>{category._id}</TableCell>
+//                     <TableCell>{category.name}</TableCell>
+//                     <TableCell>{category.description || "N/A"}</TableCell>
+//                     <TableCell>{category.productCount || 0}</TableCell>
+//                     <TableCell>
+//                       {category.offer && category.offer.isActive
+//                         ? `${category.offer.discountPercentage}%`
+//                         : "-"}
+//                     </TableCell>
+//                     <TableCell>
+//                       <span
+//                         className={`inline-block px-2 py-1 text-xs rounded-full ${
+//                           category.isListed
+//                             ? "bg-green-100 text-green-800"
+//                             : "bg-red-100 text-red-800"
+//                         }`}
+//                       >
+//                         {category.isListed ? "Listed" : "Unlisted"}
+//                       </span>
+//                     </TableCell>
+//                     <TableCell className="text-right">
+//                       <div className="flex justify-end gap-2">
+//                         <Button
+//                           variant="ghost"
+//                           size="icon"
+//                           onClick={() => handleEditClick(category)}
+//                         >
+//                           <Edit className="h-4 w-4" />
+//                         </Button>
+//                         {category.offer && category.offer.isActive ? (
+//                           <AlertDialog>
+//                             <AlertDialogTrigger asChild>
+//                               <Button
+//                                 variant="ghost"
+//                                 size="icon"
+//                                 title="Remove Offer"
+//                               >
+//                                 <XCircle className="h-4 w-4" />
+//                               </Button>
+//                             </AlertDialogTrigger>
+//                             <AlertDialogContent>
+//                               <AlertDialogHeader>
+//                                 <AlertDialogTitle>
+//                                   Remove Offer
+//                                 </AlertDialogTitle>
+//                                 <AlertDialogDescription>
+//                                   Are you sure you want to remove the offer from
+//                                   "{category.name}"? This will remove the
+//                                   discount from all products in this category.
+//                                 </AlertDialogDescription>
+//                               </AlertDialogHeader>
+//                               <AlertDialogFooter>
+//                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+//                                 <AlertDialogAction
+//                                   onClick={() =>
+//                                     handleRemoveCategoryOffer(category._id)
+//                                   }
+//                                 >
+//                                   Confirm
+//                                 </AlertDialogAction>
+//                               </AlertDialogFooter>
+//                             </AlertDialogContent>
+//                           </AlertDialog>
+//                         ) : (
+//                           <Button
+//                             variant="ghost"
+//                             size="icon"
+//                             onClick={() => setOfferCategory(category)}
+//                             title="Add Offer"
+//                           >
+//                             <Percent className="h-4 w-4" />
+//                           </Button>
+//                         )}
+//                         <AlertDialog>
+//                           <AlertDialogTrigger asChild>
+//                             <Button
+//                               variant="ghost"
+//                               size="icon"
+//                               title={category.isListed ? "Unlist" : "List"}
+//                             >
+//                               {category.isListed ? (
+//                                 <EyeOff className="h-4 w-4" />
+//                               ) : (
+//                                 <Eye className="h-4 w-4" />
+//                               )}
+//                             </Button>
+//                           </AlertDialogTrigger>
+//                           <AlertDialogContent>
+//                             <AlertDialogHeader>
+//                               <AlertDialogTitle>
+//                                 {category.isListed
+//                                   ? "Unlist Category"
+//                                   : "List Category"}
+//                               </AlertDialogTitle>
+//                               <AlertDialogDescription>
+//                                 Are you sure you want to{" "}
+//                                 {category.isListed ? "unlist" : "list"} "
+//                                 {category.name}"?
+//                               </AlertDialogDescription>
+//                             </AlertDialogHeader>
+//                             <AlertDialogFooter>
+//                               <AlertDialogCancel>Cancel</AlertDialogCancel>
+//                               <AlertDialogAction
+//                                 onClick={() =>
+//                                   handleToggleCategoryListing(category._id)
+//                                 }
+//                               >
+//                                 Confirm
+//                               </AlertDialogAction>
+//                             </AlertDialogFooter>
+//                           </AlertDialogContent>
+//                         </AlertDialog>
+//                       </div>
+//                     </TableCell>
+//                   </TableRow>
+//                 ))}
+//               </TableBody>
+//             </Table>
+//           </>
+//         )}
+//       </div>
+
+//       <AddCategoryOfferDialog
+//         category={offerCategory}
+//         onAddOffer={handleAddCategoryOffer}
+//         onClose={() => setOfferCategory(null)}
+//       />
+
+//       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+//         <DialogContent className="sm:max-w-[500px]">
+//           <DialogHeader>
+//             <DialogTitle>Edit Category</DialogTitle>
+//             <DialogDescription>Update the category details.</DialogDescription>
+//           </DialogHeader>
+//           {selectedCategory && (
+//             <Formik
+//               initialValues={{
+//                 name: selectedCategory.name || "",
+//                 description: selectedCategory.description || "",
+//               }}
+//               validationSchema={categorySchema}
+//               onSubmit={async (values, { setSubmitting, setStatus }) => {
+//                 const payload = { id: selectedCategory._id, ...values };
+//                 try {
+//                   await updateCategory(payload).unwrap();
+//                   toast.success("Category updated successfully!");
+//                   setIsEditDialogOpen(false);
+//                 } catch (error) {
+//                   const errorMessage =
+//                     error?.data?.message?.join(", ") ||
+//                     "Failed to update category";
+//                   setStatus({ error: errorMessage });
+//                   toast.error(errorMessage);
+//                 } finally {
+//                   setSubmitting(false);
+//                 }
+//               }}
+//             >
+//               {({ isSubmitting, status }) => (
+//                 <Form className="grid gap-4 py-4">
+//                   {status?.error && (
+//                     <p className="text-red-600 text-center">{status.error}</p>
+//                   )}
+//                   <div className="grid grid-cols-4 items-center gap-4">
+//                     <Label htmlFor="name" className="text-right">
+//                       Name
+//                     </Label>
+//                     <div className="col-span-3">
+//                       <Field name="name" as={Input} id="name" />
+//                       <ErrorMessage
+//                         name="name"
+//                         component="p"
+//                         className="text-red-600 text-sm"
+//                       />
+//                     </div>
+//                   </div>
+//                   <div className="grid grid-cols-4 items-center gap-4">
+//                     <Label htmlFor="description" className="text-right">
+//                       Description
+//                     </Label>
+//                     <div className="col-span-3">
+//                       <Field
+//                         name="description"
+//                         as={Textarea}
+//                         id="description"
+//                       />
+//                       <ErrorMessage
+//                         name="description"
+//                         component="p"
+//                         className="text-red-600 text-sm"
+//                       />
+//                     </div>
+//                   </div>
+//                   <div className="flex justify-end">
+//                     <Button type="submit" disabled={isSubmitting || isUpdating}>
+//                       {isSubmitting || isUpdating
+//                         ? "Saving..."
+//                         : "Save Changes"}
+//                     </Button>
+//                   </div>
+//                 </Form>
+//               )}
+//             </Formik>
+//           )}
+//         </DialogContent>
+//       </Dialog>
+
+//       <div className="flex items-center justify-between">
+//         <div className="text-sm text-muted-foreground">
+//           Showing {categories.length} of {categoriesData?.totalCategories || 0}{" "}
+//           categories
+//         </div>
+//         <div className="flex items-center space-x-2">
+//           <Button
+//             variant="outline"
+//             size="sm"
+//             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+//             disabled={currentPage === 1 || isCategoriesLoading}
+//           >
+//             <ChevronLeft className="h-4 w-4" />
+//           </Button>
+//           <div className="text-sm">
+//             Page {currentPage} of {totalPages}
+//           </div>
+//           <Button
+//             variant="outline"
+//             size="sm"
+//             onClick={() =>
+//               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+//             }
+//             disabled={currentPage === totalPages || isCategoriesLoading}
+//           >
+//             <ChevronRight className="h-4 w-4" />
+//           </Button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
 export default function CategoryManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -177,6 +618,23 @@ export default function CategoryManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [offerCategory, setOfferCategory] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if screen is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Add event listener
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const debouncedSetSearch = debounce((value) => {
     setDebouncedSearchTerm(value);
@@ -199,7 +657,6 @@ export default function CategoryManagement() {
   });
   const categories = categoriesData?.categories || [];
   const totalPages = categoriesData?.totalPages || 1;
-  console.log("category data", categories);
 
   const [addCategory, { isLoading: isAdding }] = useAddCategoryMutation();
   const [updateCategory, { isLoading: isUpdating }] =
@@ -244,18 +701,147 @@ export default function CategoryManagement() {
     });
   };
 
+  const renderMobileRow = (category) => (
+    <div key={category._id} className="p-4 border-b space-y-3">
+      <div className="flex justify-between items-start">
+        <div>
+          <h3 className="font-medium">{category.name}</h3>
+          <p className="text-sm text-gray-500">{category.description || "N/A"}</p>
+        </div>
+        <span
+          className={`inline-block px-2 py-1 text-xs rounded-full ${
+            category.isListed
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
+          {category.isListed ? "Listed" : "Unlisted"}
+        </span>
+      </div>
+
+      <div className="flex justify-between items-center text-sm">
+        <div>
+          <p><span className="font-medium">ID:</span> {category._id.substring(0, 8)}...</p>
+          <p><span className="font-medium">Products:</span> {category.productCount || 0}</p>
+          <p>
+            <span className="font-medium">Offer:</span>{" "}
+            {category.offer && category.offer.isActive
+              ? `${category.offer.discountPercentage}%`
+              : "-"}
+          </p>
+        </div>
+        
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleEditClick(category)}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          
+          {category.offer && category.offer.isActive ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  title="Remove Offer"
+                >
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="max-w-[90vw] w-full sm:max-w-[500px]">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Remove Offer
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to remove the offer from
+                    "{category.name}"? This will remove the
+                    discount from all products in this category.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                  <AlertDialogCancel className="mt-2 sm:mt-0">Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() =>
+                      handleRemoveCategoryOffer(category._id)
+                    }
+                  >
+                    Confirm
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setOfferCategory(category)}
+              title="Add Offer"
+            >
+              <Percent className="h-4 w-4" />
+            </Button>
+          )}
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                title={category.isListed ? "Unlist" : "List"}
+              >
+                {category.isListed ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="max-w-[90vw] w-full sm:max-w-[500px]">
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {category.isListed
+                    ? "Unlist Category"
+                    : "List Category"}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to{" "}
+                  {category.isListed ? "unlist" : "list"} "
+                  {category.name}"?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                <AlertDialogCancel className="mt-2 sm:mt-0">Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() =>
+                    handleToggleCategoryListing(category._id)
+                  }
+                >
+                  Confirm
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Category Management</h1>
+    <div className="space-y-6 p-4 w-full max-w-[1200px] mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">Category Management</h1>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Category
+              <span className="hidden sm:inline">Add Category</span>
+              <span className="sm:hidden">Add</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="max-w-[90vw] w-full sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Add New Category</DialogTitle>
               <DialogDescription>
@@ -288,11 +874,11 @@ export default function CategoryManagement() {
                   {status?.error && (
                     <p className="text-red-600 text-center">{status.error}</p>
                   )}
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                    <Label htmlFor="name" className="sm:text-right">
                       Name
                     </Label>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <Field name="name" as={Input} id="name" />
                       <ErrorMessage
                         name="name"
@@ -301,11 +887,11 @@ export default function CategoryManagement() {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="description" className="text-right">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                    <Label htmlFor="description" className="sm:text-right">
                       Description
                     </Label>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <Field
                         name="description"
                         as={Textarea}
@@ -330,8 +916,8 @@ export default function CategoryManagement() {
         </Dialog>
       </div>
 
-      <div className="flex justify-between">
-        <div className="relative w-full md:w-64">
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div className="relative w-full sm:w-64">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
@@ -341,37 +927,45 @@ export default function CategoryManagement() {
             onChange={handleSearchChange}
           />
         </div>
-        <Button variant="outline" onClick={refetch}>
+        <Button variant="outline" onClick={refetch} className="w-full sm:w-auto">
           <RefreshCcw className="h-4 w-4 mr-1" />
           Refresh
         </Button>
       </div>
 
-      <div className="border rounded-md">
+      <div className="border rounded-md overflow-hidden">
         {isCategoriesLoading ? (
-          <p>Loading categories...</p>
+          <div className="p-4 text-center">
+            <span className="animate-spin inline-block mr-2">⏳</span> Loading categories...
+          </div>
         ) : categories.length === 0 ? (
-          <p>No categories found.</p>
+          <div className="p-8 text-center text-muted-foreground">
+            No categories found.
+          </div>
+        ) : isMobile ? (
+          <div className="divide-y">
+            {categories.map(renderMobileRow)}
+          </div>
         ) : (
-          <>
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
+                  <TableHead className="w-24">ID</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Products</TableHead>
-                  <TableHead>Offer</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="hidden md:table-cell">Description</TableHead>
+                  <TableHead className="w-24">Products</TableHead>
+                  <TableHead className="w-20">Offer</TableHead>
+                  <TableHead className="w-24">Status</TableHead>
+                  <TableHead className="text-right w-32">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {categories.map((category) => (
                   <TableRow key={category._id}>
-                    <TableCell>{category._id}</TableCell>
+                    <TableCell className="font-mono text-xs">{category._id.substring(0, 8)}...</TableCell>
                     <TableCell>{category.name}</TableCell>
-                    <TableCell>{category.description || "N/A"}</TableCell>
+                    <TableCell className="hidden md:table-cell">{category.description || "N/A"}</TableCell>
                     <TableCell>{category.productCount || 0}</TableCell>
                     <TableCell>
                       {category.offer && category.offer.isActive
@@ -390,7 +984,7 @@ export default function CategoryManagement() {
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -409,7 +1003,7 @@ export default function CategoryManagement() {
                                 <XCircle className="h-4 w-4" />
                               </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent>
+                            <AlertDialogContent className="max-w-[90vw] w-full sm:max-w-[500px]">
                               <AlertDialogHeader>
                                 <AlertDialogTitle>
                                   Remove Offer
@@ -420,8 +1014,8 @@ export default function CategoryManagement() {
                                   discount from all products in this category.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                                <AlertDialogCancel className="mt-2 sm:mt-0">Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() =>
                                     handleRemoveCategoryOffer(category._id)
@@ -456,7 +1050,7 @@ export default function CategoryManagement() {
                               )}
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent>
+                          <AlertDialogContent className="max-w-[90vw] w-full sm:max-w-[500px]">
                             <AlertDialogHeader>
                               <AlertDialogTitle>
                                 {category.isListed
@@ -469,8 +1063,8 @@ export default function CategoryManagement() {
                                 {category.name}"?
                               </AlertDialogDescription>
                             </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                              <AlertDialogCancel className="mt-2 sm:mt-0">Cancel</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() =>
                                   handleToggleCategoryListing(category._id)
@@ -487,7 +1081,7 @@ export default function CategoryManagement() {
                 ))}
               </TableBody>
             </Table>
-          </>
+          </div>
         )}
       </div>
 
@@ -498,7 +1092,7 @@ export default function CategoryManagement() {
       />
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="max-w-[90vw] w-full sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Edit Category</DialogTitle>
             <DialogDescription>Update the category details.</DialogDescription>
@@ -532,11 +1126,11 @@ export default function CategoryManagement() {
                   {status?.error && (
                     <p className="text-red-600 text-center">{status.error}</p>
                   )}
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                    <Label htmlFor="name" className="sm:text-right">
                       Name
                     </Label>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <Field name="name" as={Input} id="name" />
                       <ErrorMessage
                         name="name"
@@ -545,11 +1139,11 @@ export default function CategoryManagement() {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="description" className="text-right">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                    <Label htmlFor="description" className="sm:text-right">
                       Description
                     </Label>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <Field
                         name="description"
                         as={Textarea}
@@ -576,12 +1170,12 @@ export default function CategoryManagement() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="text-sm text-muted-foreground order-2 sm:order-1">
           Showing {categories.length} of {categoriesData?.totalCategories || 0}{" "}
           categories
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 order-1 sm:order-2">
           <Button
             variant="outline"
             size="sm"
