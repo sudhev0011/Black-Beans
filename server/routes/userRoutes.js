@@ -70,6 +70,12 @@ const {
   getAllAvailableCoupons
 } = require("../controllers/common/couponController");
 
+const {
+  addReview,
+  getProductReviews,
+  canReview,
+} = require("../controllers/user/reviewController");
+
 const { applyReferralCode,getReferrals } = require("../controllers/user/referralController");
 
 const userRoute = express();
@@ -222,5 +228,21 @@ userRoute.get('/coupons/all-available',authenticateWithRole(["user"]),getAllAvai
 //referral
 userRoute.post("/referral/apply", authenticateWithRole(["user"]), applyReferralCode);
 userRoute.get("/referrals", authenticateWithRole(["user"]), getReferrals);
+
+//review
+userRoute.post(
+  "/addReview",
+  authenticateWithRole(["user"]), // Assuming users can submit reviews
+  upload.array("images", 3), // Up to 3 images, matching your multer setup
+  addReview
+);
+
+userRoute.get("/reviews/:productId", getProductReviews);
+
+userRoute.get(
+  "/reviews/can-review/:productId",
+  authenticateWithRole(["user"]),
+  canReview
+);
 
 module.exports = userRoute;

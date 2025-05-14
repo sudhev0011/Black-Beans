@@ -393,6 +393,28 @@ export const userApiSlice = userBaseApiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Referral", "Coupon"],
     }),
+    // Review Endpoints
+    addReview: builder.mutation({
+      query: (formData) => ({
+        url: "/addReview",
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }),
+      invalidatesTags: ["Review"],
+    }),
+
+    getProductReviews: builder.query({
+      query: (productId) => `/reviews/${productId}`,
+      providesTags: ["Review"],
+    }),
+
+    canReview: builder.query({
+      query: (productId) => `/reviews/can-review/${productId}`,
+      providesTags: ["Review"],
+    }),
   }),
 });
 
@@ -447,4 +469,7 @@ export const {
   useGetAllAvailableCouponsQuery,
   useGetReferralsQuery,
   useApplyReferralCodeMutation,
+  useGetProductReviewsQuery,
+  useCanReviewQuery,
+  useAddReviewMutation
 } = userApiSlice;

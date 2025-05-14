@@ -7,8 +7,10 @@ import { Link, useParams } from 'react-router-dom';
 import FallbackForProduct from '@/components/ui/FallbackForproduct'
 import LoadingAlternative from "@/components/ui/loading/LoadingAlternative";
 import RelatedProducts from './RelatedProducts';
+import { useSelector } from 'react-redux';
 const ProductPage = () => {
   const { id } = useParams();
+  const userId = useSelector((state)=> state?.user?.user?._id)
   const { data: productData, isLoading, isError,refetch } = useGetProductQuery(id);
   if (isLoading) return <LoadingAlternative/>;
   if (isError) return <FallbackForProduct/>;
@@ -28,7 +30,7 @@ const ProductPage = () => {
         <ProductDetails product={product} refetch={refetch} />
       </div>
       <ProductDescription product={product} />
-      <ProductReviews productId={product._id} reviews={product.reviews} />
+      <ProductReviews productId={product._id} reviews={product.reviews} userId={userId} />
       <RelatedProducts categoryId={product.category._id}/>
     </div>
   );

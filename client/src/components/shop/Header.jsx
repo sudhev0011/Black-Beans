@@ -275,7 +275,7 @@ function HomeHeader() {
           {/* Header & Close Button */}
           <div className="flex items-center justify-between p-4 border-b">
             <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
-              <img src='/mobileLogo.png' alt="Logo" className="h-7" />
+              <img src={logo2dark} alt="Logo" className="h-7" />
             </Link>
             <Button
               variant="ghost"
